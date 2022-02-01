@@ -1,10 +1,10 @@
 import React from 'react'
 import './App.css';
-import { Input, Progress, Button } from 'reactstrap'
+import { Input, Progress, Button, Label, Form, FormGroup, Container } from 'reactstrap'
 import ReactInterval from 'react-interval';
 import axios from 'axios';
 
-const API_URL = 'HTTP://10.0.28.171:5000';
+const API_URL = 'HTTP://127.0.0.1:5000';
 
 class App extends React.Component {
     state = {
@@ -32,17 +32,26 @@ class App extends React.Component {
         this.fetchData();
     };
 
-    checkIfRunning = async () => {
+    checkForUpdates = async () => {
         const result = await axios.get(`${API_URL}/status`);
-        this.setState({
-            running: result.data.enabled,
-        });
-        if(this.state.enabled != this.prevState.enabled){
+        if(result.data.enabled){
+            if(!this.state.running)
+                this.setState({
+                    running: result.data.enabled,
+                });
             this.setState({
                 ml: result.data.ml,
                 time: result.data.time,
                 progress: result.data.progress
             });
+        }
+        else {
+            if(this.state.running)
+                this.setState({
+                    ml: result.data.ml,
+                time: result.data.time,
+                    running: result.data.enabled,
+                });
         }
     }
 
@@ -71,33 +80,44 @@ class App extends React.Component {
 
         return (
             <div className="App">
-                <ReactInterval timeout={250} enabled={true} callback={this.checkIfRunning} />
+                <ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />
                 <header className="App-header">
+                <h1>Pump controller</h1>
                     {running &&
-                        <div>
-                            <Progress animated color="primary" value={progress} />
+                        <Container fluid='sm'>
+                            <Label className='text-left' for="progress">Running...      timeleft: {time.toFixed(1)}</Label>
+                            <Progress name='progress' animated color="primary" value={progress} />
                             <Button color="danger" onClick={this.stopBackend}>STOP</Button>
-                        </div>
+                        </Container>
                     }
                     {!running &&
-                        <div>
-                            <h1>Start</h1>
-                            <Input value={ml ? ml : ""} onChange={(event) => {
-                                if(event.target.value === ""){
-                                    this.setState({ ml: 0.0} );
-                                    return;
-                                }
-                                this.setState({ ml: parseFloat(event.target.value)} );
-                            }} />
-                            <Input value={time ? time : ""} onChange={(event) => {
-                                if(event.target.value === ""){
-                                    this.setState({ time: 0.0} );
-                                    return;
-                                }
-                                this.setState({ time: parseFloat(event.target.value) })
-                            }} />
-                            <Button color="primary" onClick={this.sendDataToBackend}>GO</Button>
-                        </div>
+                        <Container fluid='sm'>
+                            <Form>
+                                <div className='text-left'>
+                                    <FormGroup>
+                                        <Label for="ml">How much? (ml)</Label>
+                                        <Input name='ml' value={ml ? ml : ""} onChange={(event) => {
+                                            if(event.target.value === ""){
+                                                this.setState({ ml: 0.0} );
+                                                return;
+                                            }
+                                            this.setState({ ml: parseFloat(event.target.value)} );
+                                        }} />
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="time">In how long? (sec)</Label>
+                                        <Input name='time' value={time ? time : ""} onChange={(event) => {
+                                            if(event.target.value === ""){
+                                                this.setState({ time: 0.0} );
+                                                return;
+                                            }
+                                            this.setState({ time: parseFloat(event.target.value) })
+                                        }} />
+                                    </FormGroup>
+                                </div>
+                                <Button color="primary" onClick={this.sendDataToBackend}>START</Button>
+                            </Form>
+                        </Container>
                     }
                 </header>
             </div>
