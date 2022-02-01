@@ -83,11 +83,12 @@ class App extends React.Component {
                 <ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />
                 <header className="App-header">
                 <h1>Pump controller</h1>
+                <div className='main'>
                     {running &&
                         <Container fluid='sm'>
                             <Label className='text-left' for="progress">Running...      timeleft: {time.toFixed(1)}</Label>
                             <Progress name='progress' animated color="primary" value={progress} />
-                            <Button color="danger" onClick={this.stopBackend}>STOP</Button>
+                            <Button className='mt-3' color="danger" onClick={this.stopBackend}>STOP</Button>
                         </Container>
                     }
                     {!running &&
@@ -119,6 +120,7 @@ class App extends React.Component {
                             </Form>
                         </Container>
                     }
+                </div>
                 </header>
             </div>
         );

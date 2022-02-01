@@ -23,6 +23,10 @@
     color: white;
 }
 
+.main {
+    width: 400px;
+}
+
 .progress {
     min-width: 350px;
 }
