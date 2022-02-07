@@ -1,6 +1,6 @@
 import React from 'react'
 import './App.css';
-import { Input, Progress, Button, Label, Form, FormGroup, Container } from 'reactstrap'
+import { Input, Progress, Button, Label, Form, FormGroup, Container, Row, Col } from 'reactstrap'
 import ReactInterval from 'react-interval';
 import axios from 'axios';
 
@@ -56,7 +56,7 @@ class App extends React.Component {
     }
 
     sendDataToBackend = async () => {
-        const result = await axios.post(`${API_URL}/update_status`,
+        await axios.post(`${API_URL}/update_status`,
             [
                 this.state.ml,
                 this.state.time,
@@ -66,7 +66,7 @@ class App extends React.Component {
     };
 
     stopBackend = async () => {
-        const result = await axios.get(`${API_URL}/stop`)
+        await axios.get(`${API_URL}/stop`)
         this.fetchData();
     };
 
@@ -96,24 +96,52 @@ class App extends React.Component {
                             <Form>
                                 <div className='text-left'>
                                     <FormGroup>
-                                        <Label for="ml">How much? (ml)</Label>
-                                        <Input name='ml' value={ml ? ml : ""} onChange={(event) => {
-                                            if(event.target.value === ""){
-                                                this.setState({ ml: 0.0} );
-                                                return;
-                                            }
-                                            this.setState({ ml: parseFloat(event.target.value)} );
-                                        }} />
+                                        <Row>
+                                            <Col>
+                                                <Label for="ml">How much? (ml)</Label>
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col xs='9'>
+                                                <Input className='mt-2' name='ml' type="range" min="0" max="16" step="0.05" value={ml} onChange={(event) => {
+                                                    this.setState({ ml: parseFloat(event.target.value)} );
+                                                }} />
+                                            </Col>
+                                            <Col xs='3'>
+                                                <Input value={ml ? ml : ""}  onChange={(event) => {
+                                                    if(event.target.value === ""){
+                                                        this.setState({ ml: 0.0} );
+                                                        return;
+                                                    }
+                                                    this.setState({ ml: parseFloat(event.target.value) })
+                                                }} />
+                                            </Col>
+                                        </Row>
                                     </FormGroup>
                                     <FormGroup>
-                                        <Label for="time">In how long? (sec)</Label>
-                                        <Input name='time' value={time ? time : ""} onChange={(event) => {
-                                            if(event.target.value === ""){
-                                                this.setState({ time: 0.0} );
-                                                return;
-                                            }
-                                            this.setState({ time: parseFloat(event.target.value) })
-                                        }} />
+                                        <Row>
+                                            <Label for="time">In how long? (sec)</Label>
+                                        </Row>
+                                        <Row>
+                                            <Col xs='9'>
+                                                <Input className='mt-2' type='range' name='time' min="0" max="1000" step="0.5" value={time} onChange={(event) => {
+                                                    if(event.target.value === ""){
+                                                        this.setState({ time: 0.0} );
+                                                        return;
+                                                    }
+                                                    this.setState({ time: parseFloat(event.target.value) })
+                                                }} />
+                                            </Col>
+                                            <Col xs='3'>
+                                                <Input value={time ? time : ""} onChange={(event) => {
+                                                    if(event.target.value === ""){
+                                                        this.setState({ time: 0.0} );
+                                                        return;
+                                                    }
+                                                    this.setState({ time: parseFloat(event.target.value) })
+                                                }} />
+                                            </Col>
+                                        </Row>
                                     </FormGroup>
                                 </div>
                                 <Button color="primary" onClick={this.sendDataToBackend}>START</Button>
