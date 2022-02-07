@@ -8,7 +8,7 @@ const API_URL = 'HTTP://127.0.0.1:5000';
 
 class App extends React.Component {
     state = {
-        running: false,
+        mode: 0, // 0 disabled, 1 default
         ml: 0,
         time: 0,
         progress: 0,
@@ -17,7 +17,7 @@ class App extends React.Component {
     fetchData(){
         axios.get(`${API_URL}/status`).then( result => {
             this.setState({
-                running: result.data.enabled,
+                mode: result.data.mode,
                 ml: result.data.ml,
                 time: result.data.time,
                 progress: result.data.progress
@@ -34,10 +34,10 @@ class App extends React.Component {
 
     checkForUpdates = async () => {
         const result = await axios.get(`${API_URL}/status`);
-        if(result.data.enabled){
-            if(!this.state.running)
+        if(result.data.mode){
+            if(!this.state.mode)
                 this.setState({
-                    running: result.data.enabled,
+                    mode: result.data.mode,
                 });
             this.setState({
                 ml: result.data.ml,
@@ -46,11 +46,11 @@ class App extends React.Component {
             });
         }
         else {
-            if(this.state.running)
+            if(this.state.mode)
                 this.setState({
                     ml: result.data.ml,
                 time: result.data.time,
-                    running: result.data.enabled,
+                    mode: result.data.mode,
                 });
         }
     }
@@ -72,7 +72,7 @@ class App extends React.Component {
 
     render() {
         const {
-            running,
+            mode,
             ml,
             time,
             progress,
@@ -84,14 +84,14 @@ class App extends React.Component {
                 <header className="App-header">
                 <h1>Pump controller</h1>
                 <div className='main'>
-                    {running &&
+                    {mode === 1 &&
                         <Container fluid='sm'>
                             <Label className='text-left' for="progress">Running...      timeleft: {time.toFixed(1)}</Label>
                             <Progress name='progress' animated color="primary" value={progress} />
                             <Button className='mt-3' color="danger" onClick={this.stopBackend}>STOP</Button>
                         </Container>
                     }
-                    {!running &&
+                    {mode === 0 &&
                         <Container fluid='sm'>
                             <Form>
                                 <div className='text-left'>
