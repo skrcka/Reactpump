@@ -7,7 +7,7 @@ After=syslog.target network-online.target
 
 [Service]
 Type=simple
-ExecStart=serve -s build /home/pi/controller-frontend
+ExecStart=serve -s /home/pi/controller-frontend
 Restart=on-failure
 RestartSec=10
 KillMode=process
