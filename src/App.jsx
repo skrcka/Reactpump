@@ -4,7 +4,7 @@ import { Input, Progress, Button, Label, Form, FormGroup, Container, Row, Col } 
 import ReactInterval from 'react-interval';
 import axios from 'axios';
 
-const API_URL = 'HTTP://127.0.0.1:5000';
+let API_URL = 'HTTP://10.0.28.171:5000'; // 'HTTP://10.0.28.171:5000' 'HTTP://127.0.0.1:5000';
 
 class App extends React.Component {
     state = {
@@ -29,6 +29,9 @@ class App extends React.Component {
      * Initial data fetch
      */
     componentDidMount = () => {
+        let link = window.location.href.split(':');
+        //API_URL = `${link[0]}:${link[1]}:5000`;
+        console.log(API_URL)
         this.fetchData();
     };
 
@@ -49,7 +52,7 @@ class App extends React.Component {
             if(this.state.mode)
                 this.setState({
                     ml: result.data.ml,
-                time: result.data.time,
+                    time: result.data.time,
                     mode: result.data.mode,
                 });
         }

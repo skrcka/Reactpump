@@ -10,7 +10,7 @@ const createMainWindow = () => {
       nodeIntegration: false
     }
   });
-  const startURL = 'http://localhost:3000';
+  const startURL = 'http://10.0.28.171:3000/';
 
   mainWindow.loadURL(startURL);
 

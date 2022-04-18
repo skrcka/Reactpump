@@ -1,2 +1,2 @@
 #!/bin/bash
-rsync -avP ./build/ pi@10.0.28.172:./controller-frontend
+rsync -avP ./build/ skrcka@10.0.28.171:./controller-frontend
