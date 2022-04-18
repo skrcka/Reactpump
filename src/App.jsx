@@ -8,9 +8,11 @@ let API_URL = 'HTTP://10.0.28.171:5000'; // 'HTTP://10.0.28.171:5000' 'HTTP://12
 
 class App extends React.Component {
     state = {
-        mode: 0, // 0 disabled, 1 default
+        running: false,
+        mode: 0, // 1 default, 2 asap
         ml: 0,
-        time: 0,
+        time_rate: 0,
+        pull: false,
         progress: 0,
         steps_per_ml: 0,
         syringe_size: 0,
@@ -19,9 +21,10 @@ class App extends React.Component {
     fetchData(){
         axios.get(`${API_URL}/status`).then( result => {
             this.setState({
+                running: result.data.running,
                 mode: result.data.mode,
                 ml: result.data.ml,
-                time: result.data.time,
+                time_rate: result.data.time_rate,
                 progress: result.data.progress,
                 steps_per_ml: result.data.steps_per_ml,
                 syringe_size: result.data.syringe_size,
@@ -41,23 +44,23 @@ class App extends React.Component {
 
     checkForUpdates = async () => {
         const result = await axios.get(`${API_URL}/status`);
-        if(result.data.mode){
-            if(!this.state.mode)
+        if(result.data.running){
+            if(!this.state.running)
                 this.setState({
-                    mode: result.data.mode,
+                    running: result.data.running,
                 });
             this.setState({
                 ml: result.data.ml,
-                time: result.data.time,
-                progress: result.data.progress
+                time_rate: result.data.time_rate,
+                progress: result.data.progress,
             });
         }
         else {
-            if(this.state.mode)
+            if(this.state.running)
                 this.setState({
                     ml: result.data.ml,
-                    time: result.data.time,
-                    mode: result.data.mode,
+                    time_rate: result.data.time_rate,
+                    running: result.data.running,
                 });
         }
     }
@@ -65,9 +68,10 @@ class App extends React.Component {
     sendDataToBackend = async () => {
         await axios.post(`${API_URL}/update_status`,
             [
-                this.state.mode,
+                2,
+                true,
                 this.state.ml,
-                this.state.time,
+                this.state.time_rate,
             ]
         );
         this.fetchData();
@@ -90,9 +94,11 @@ class App extends React.Component {
 
     render() {
         const {
+            running,
             mode,
             ml,
-            time,
+            time_rate,
+            pull,
             progress,
             steps_per_ml,
             syringe_size
@@ -104,14 +110,14 @@ class App extends React.Component {
                 <header className="App-header">
                 <h1>Pump controller</h1>
                 <div className='main'>
-                    {mode === 1 &&
+                    {running &&
                         <Container fluid='sm'>
-                            <Label className='text-left' for="progress">Running...      timeleft: {time.toFixed(1)}</Label>
+                            <Label className='text-left' for="progress">Running...      timeleft: {time_rate.toFixed(1)}</Label>
                             <Progress name='progress' animated color="primary" value={progress} />
                             <Button className='mt-3' color="danger" onClick={this.stopBackend}>STOP</Button>
                         </Container>
                     }
-                    {mode === 0 &&
+                    {!running &&
                         <Container fluid='sm'>
                             <Form>
                                 <div className='text-left'>
@@ -123,12 +129,12 @@ class App extends React.Component {
                                         </Row>
                                         <Row>
                                             <Col xs='9'>
-                                                <Input className='mt-2' name='ml' type="range" min="0" max={syringe_size} step="0.05" value={ml} onChange={(event) => {
+                                                <Input className='mt-2' name='ml' type="range" min="0" max={syringe_size} step="0.05" value={ml ? ml : 0} onChange={(event) => {
                                                     this.setState({ ml: parseFloat(event.target.value)} );
                                                 }} />
                                             </Col>
                                             <Col xs='3'>
-                                                <Input value={ml ? ml : ""}  onChange={(event) => {
+                                                <Input value={ml ? ml : 0}  onChange={(event) => {
                                                     if(event.target.value === ""){
                                                         this.setState({ ml: 0.0} );
                                                         return;
@@ -144,21 +150,21 @@ class App extends React.Component {
                                         </Row>
                                         <Row>
                                             <Col xs='9'>
-                                                <Input className='mt-2' type='range' name='time' min="0" max="1000" step="0.5" value={time} onChange={(event) => {
+                                                <Input className='mt-2' type='range' name='time' min="0" max="1000" step="0.5" value={time_rate} onChange={(event) => {
                                                     if(event.target.value === ""){
-                                                        this.setState({ time: 0.0} );
+                                                        this.setState({ time_rate: 0.0} );
                                                         return;
                                                     }
-                                                    this.setState({ time: parseFloat(event.target.value) })
+                                                    this.setState({ time_rate: parseFloat(event.target.value) })
                                                 }} />
                                             </Col>
                                             <Col xs='3'>
-                                                <Input value={time ? time : ""} onChange={(event) => {
+                                                <Input value={time_rate ? time_rate : 0} onChange={(event) => {
                                                     if(event.target.value === ""){
-                                                        this.setState({ time: 0.0} );
+                                                        this.setState({ time_rate: 0.0} );
                                                         return;
                                                     }
-                                                    this.setState({ time: parseFloat(event.target.value) })
+                                                    this.setState({ time_rate: parseFloat(event.target.value) })
                                                 }} />
                                             </Col>
                                         </Row>
