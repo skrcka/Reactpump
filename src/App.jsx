@@ -12,6 +12,8 @@ class App extends React.Component {
         ml: 0,
         time: 0,
         progress: 0,
+        steps_per_ml: 0,
+        syringe_size: 0,
     };
 
     fetchData(){
@@ -20,7 +22,9 @@ class App extends React.Component {
                 mode: result.data.mode,
                 ml: result.data.ml,
                 time: result.data.time,
-                progress: result.data.progress
+                progress: result.data.progress,
+                steps_per_ml: result.data.steps_per_ml,
+                syringe_size: result.data.syringe_size,
             });
         });
     }
@@ -61,8 +65,19 @@ class App extends React.Component {
     sendDataToBackend = async () => {
         await axios.post(`${API_URL}/update_status`,
             [
+                this.state.mode,
                 this.state.ml,
                 this.state.time,
+            ]
+        );
+        this.fetchData();
+    };
+
+    sendConfigToBackend = async () => {
+        await axios.post(`${API_URL}/update_config`,
+            [
+                this.state.steps_per_ml,
+                this.state.syringe_size,
             ]
         );
         this.fetchData();
@@ -79,6 +94,8 @@ class App extends React.Component {
             ml,
             time,
             progress,
+            steps_per_ml,
+            syringe_size
         } = this.state
 
         return (
@@ -106,7 +123,7 @@ class App extends React.Component {
                                         </Row>
                                         <Row>
                                             <Col xs='9'>
-                                                <Input className='mt-2' name='ml' type="range" min="0" max="16" step="0.05" value={ml} onChange={(event) => {
+                                                <Input className='mt-2' name='ml' type="range" min="0" max={syringe_size} step="0.05" value={ml} onChange={(event) => {
                                                     this.setState({ ml: parseFloat(event.target.value)} );
                                                 }} />
                                             </Col>
