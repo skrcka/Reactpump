@@ -21,6 +21,7 @@ class App extends React.Component {
         progress: 0,
         steps_per_ml: 0,
         syringe_size: 0,
+        steps: 0,
     };
 
     fetchData(){
@@ -59,6 +60,7 @@ class App extends React.Component {
                 ml: result.data.ml,
                 time_rate: result.data.time_rate,
                 progress: result.data.progress,
+                mode: result.data.mode,
             });
         }
         else {
@@ -67,7 +69,8 @@ class App extends React.Component {
                     ml: result.data.ml,
                     time_rate: result.data.time_rate,
                     running: result.data.running,
-                });
+                    mode: result.data.mode,
+            });
         }
     }
 
@@ -80,6 +83,17 @@ class App extends React.Component {
                 this.state.volume_unit,
                 this.state.time_rate,
                 this.state.time_rate_unit,
+            ]
+        );
+        this.fetchData();
+    };
+
+    sendManualStepsToBackend = async () => {
+        await axios.post(`${API_URL}/update_status`,
+            [
+                this.state.mode,
+                this.state.pull,
+                this.state.steps,
             ]
         );
         this.fetchData();
@@ -111,7 +125,8 @@ class App extends React.Component {
             pull,
             progress,
             steps_per_ml,
-            syringe_size
+            syringe_size,
+            steps,
         } = this.state
 
         return (
@@ -145,7 +160,7 @@ class App extends React.Component {
                                     <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 1} );}}>Volume/Time mode</Button>
                                     <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 2} );}}>ASAP mode</Button>
                                     <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 3} );}}>Rate mode</Button>
-                                    <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 10} );}}>Settings</Button>
+                                    <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 4} );}}>Settings</Button>
                                 </>
                             }
                             {mode == 1 &&
@@ -281,6 +296,56 @@ class App extends React.Component {
                                             </Col>
                                             <Col className="text-right" xs="4">
                                                 <Button color="success" onClick={this.sendDataToBackend}>START</Button>
+                                            </Col>
+                                        </Row>
+                                    </div>
+                                </Form>
+                            }
+
+                            {mode == 4 &&
+                                <Form>
+                                    <div className='w-100 h-100 text-left'>
+                                        <FormGroup>
+                                            <Row className="mb-1">
+                                                <Col>
+                                                    <Label className="mt-1">Ml / 10000 steps</Label>
+                                                </Col>
+                                                <Col xs="7">
+                                                    <Button color="primary" className='w-100 mt-1 text-left' onClick={() => {
+                                                        this.setState({ 
+                                                            mode: 4,
+                                                            pull: false,
+                                                            steps: 10000,
+                                                        } );
+                                                        this.sendManualStepsToBackend();
+                                                    }}>Make 10 000 steps</Button>
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col>
+                                                    <Integernumpad value={ml} fn={(value) => { this.setState({steps_per_ml: 10000 / value}); }} decimal="0" />
+                                                </Col>
+                                            </Row>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Row className="mb-1">
+                                                <Col>
+                                                    <Label className="mt-1">Syringe size</Label>
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col>
+                                                    <Integernumpad value={syringe_size} fn={(value) => { this.setState({syringe_size: value}); }} decimal="2" />
+                                                </Col>
+                                            </Row>
+                                        </FormGroup>
+                                    </div>
+                                    <div className='footer w-100'>
+                                        <Row>
+                                            <Col>
+                                            </Col>
+                                            <Col className="text-right" xs="4">
+                                                <Button color="success" onClick={this.sendConfigToBackend}>SAVE</Button>
                                             </Col>
                                         </Row>
                                     </div>
