@@ -133,28 +133,28 @@ class App extends React.Component {
             <div className="App">
                 <ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />
                 <div className='main'>
-                    <Row>
+                    <Row className="header">
                         <Col xs='3'>
-                            <Button className='' disabled={mode === 0 || running} color="danger" onClick={() => {this.setState({ mode: 0} );}}>
-                                <svg xmlns="http://www.w3.org/2000/svg" height="30px" width="100%" viewBox="0 0 471.2 471.2">
+                            <Button className='backbutton mt-1' disabled={mode === 0 || running} color="danger" onClick={() => {this.setState({ mode: 0} );}}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 150 471.2 471.2">
                                     <path d="M344.6,222.1H159.2l47.4-47.5c5.3-5.3,5.3-13.8,0-19.1s-13.8-5.3-19.1,0L117,226c-5.3,5.3-5.3,13.8,0,19.1l70.6,70.5
                                         c2.6,2.6,6.1,4,9.5,4s6.9-1.3,9.5-4c5.3-5.3,5.3-13.8,0-19.1L159.1,249h185.5c7.5,0,13.5-6,13.5-13.5S352.1,222.1,344.6,222.1z"/>
                                 </svg>
                             </Button>
                         </Col>
                         <Col>
-                            <h2 className='appname text-left'>Pump controller</h2>
+                            <h2 className='appname'>Pump controller</h2>
                         </Col>
                     </Row>
                     {running &&
-                        <div className='w-100 h-100'>
+                        <div className='w-100'>
                             <Label className='text-left' for="progress">Running...      timeleft: {time_rate.toFixed(1)}</Label>
                             <Progress name='progress' animated color="primary" value={progress} />
                             <Button className='mt-3' color="danger" onClick={this.stopBackend}>STOP</Button>
                         </div>
                     }
                     {!running &&
-                        <div className='w-100 h-100 text-left'>
+                        <div className='content w-100 text-left'>
                             {mode == 0 &&
                                 <>
                                     <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 1} );}}>Volume/Time mode</Button>
@@ -165,8 +165,8 @@ class App extends React.Component {
                             }
                             {mode == 1 &&
                                 <Form>
-                                    <div className='w-100 h-100 text-left'>
-                                        <FormGroup>
+                                    <div className='form w-100 text-left'>
+                                        <div>
                                             <Row className="mb-1">
                                                 <Col>
                                                     <Label className="mt-1">How much?</Label>
@@ -184,8 +184,8 @@ class App extends React.Component {
                                                     <Integernumpad value={ml} fn={(value) => { this.setState({ml: value}); }} decimal="4" />
                                                 </Col>
                                             </Row>
-                                        </FormGroup>
-                                        <FormGroup>
+                                        </div>
+                                        <div>
                                             <Row>
                                                 <Col>
                                                     <Label>In how long? (sec)</Label>
@@ -196,7 +196,7 @@ class App extends React.Component {
                                                     <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: value}); }} decimal="2" />
                                                 </Col>
                                             </Row>
-                                        </FormGroup>
+                                        </div>
                                     </div>
                                     <div className='footer w-100'>
                                         <Row>
@@ -213,8 +213,8 @@ class App extends React.Component {
 
                             {mode == 2 &&
                                 <Form>
-                                    <div className='w-100 h-100 text-left'>
-                                        <FormGroup>
+                                    <div className='form w-100 text-left'>
+                                        <div>
                                             <Row className="mb-1">
                                                 <Col>
                                                     <Label className="mt-1">How much?</Label>
@@ -232,7 +232,7 @@ class App extends React.Component {
                                                     <Integernumpad value={ml} fn={(value) => { this.setState({ml: value}); }} decimal="4" />
                                                 </Col>
                                             </Row>
-                                        </FormGroup>
+                                        </div>
                                     </div>
                                     <div className='footer w-100'>
                                         <Row>
@@ -249,8 +249,8 @@ class App extends React.Component {
 
                             {mode == 3 &&
                                 <Form>
-                                    <div className='w-100 h-100 text-left'>
-                                        <FormGroup>
+                                    <div className='form w-100 text-left'>
+                                        <div>
                                             <Row className="mb-1">
                                                 <Col>
                                                     <Label className="mt-1">How much?</Label>
@@ -263,13 +263,13 @@ class App extends React.Component {
                                                     </Input>
                                                 </Col>
                                             </Row>
-                                            <Row>
+                                            <Row className="mb-1">
                                                 <Col>
                                                     <Integernumpad value={ml} fn={(value) => { this.setState({ml: value}); }} decimal="4" />
                                                 </Col>
                                             </Row>
-                                        </FormGroup>
-                                        <FormGroup>
+                                        </div>
+                                        <div>
                                             <Row className="mb-1">
                                                 <Col>
                                                     <Label className="mt-1">At what rate?</Label>
@@ -287,7 +287,7 @@ class App extends React.Component {
                                                     <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: value}); }} decimal="2" />
                                                 </Col>
                                             </Row>
-                                        </FormGroup>
+                                        </div>
                                     </div>
                                     <div className='footer w-100'>
                                         <Row>
@@ -304,14 +304,14 @@ class App extends React.Component {
 
                             {mode == 4 &&
                                 <Form>
-                                    <div className='w-100 h-100 text-left'>
-                                        <FormGroup>
+                                    <div className='form w-100 text-left'>
+                                        <div>
                                             <Row className="mb-1">
                                                 <Col>
                                                     <Label className="mt-1">Ml / 10000 steps</Label>
                                                 </Col>
-                                                <Col xs="7">
-                                                    <Button color="primary" className='w-100 mt-1 text-left' onClick={() => {
+                                                <Col xs="7 text-right">
+                                                    <Button color="primary" className='calibratebutton mt-1 text-center' onClick={() => {
                                                         this.setState({ 
                                                             mode: 4,
                                                             pull: false,
@@ -326,8 +326,8 @@ class App extends React.Component {
                                                     <Integernumpad value={ml} fn={(value) => { this.setState({steps_per_ml: 10000 / value}); }} decimal="0" />
                                                 </Col>
                                             </Row>
-                                        </FormGroup>
-                                        <FormGroup>
+                                        </div>
+                                        <div>
                                             <Row className="mb-1">
                                                 <Col>
                                                     <Label className="mt-1">Syringe size</Label>
@@ -338,7 +338,7 @@ class App extends React.Component {
                                                     <Integernumpad value={syringe_size} fn={(value) => { this.setState({syringe_size: value}); }} decimal="2" />
                                                 </Col>
                                             </Row>
-                                        </FormGroup>
+                                        </div>
                                     </div>
                                     <div className='footer w-100'>
                                         <Row>

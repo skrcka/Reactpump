@@ -2,6 +2,8 @@ import React from 'react'
 
 import Numpad from 'react-numpad';
 
+import './App.css';
+
 class Integernumpad extends React.Component {
     render() {
       return (
@@ -9,8 +11,7 @@ class Integernumpad extends React.Component {
             onChange={(value) => this.props.fn(value)}
             //label={'Total'}
             //placeholder={'my placeholder'}
-            className="w-100"
-            width="100%"
+            className=""
             //theme={Consts.numpadtheme}
             negative={false}
             //position="fullscreen"
