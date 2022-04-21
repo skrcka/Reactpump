@@ -342,7 +342,7 @@ class App extends React.Component {
                                             </Row>
                                             <Row>
                                                 <Col>
-                                                    <Integernumpad value={steps_per_ml} fn={(value) => { this.setState({steps_per_ml: parseInt(10000 / parseFloat(value))}); }} decimal={0} />
+                                                    <Integernumpad value={10000.0 / steps_per_ml} fn={(value) => { this.setState({steps_per_ml: parseInt(10000 / parseFloat(value))}); }} decimal={0} />
                                                 </Col>
                                             </Row>
                                         </div>
