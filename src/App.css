@@ -1,3 +1,5 @@
+::-webkit-scrollbar{display:none;} 
+
 .App {
     background-color: #282c34;
     align-items: center;
