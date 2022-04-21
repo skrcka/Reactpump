@@ -64,6 +64,13 @@ form {
     position: relative;
 }
 
+.progressPage{
+    flex-grow : 1;
+    display: flex;
+    flex-flow: column;
+    position: relative;
+}
+
 .form {
     height: auto;
 }

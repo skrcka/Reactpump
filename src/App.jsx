@@ -24,13 +24,23 @@ class App extends React.Component {
         steps: 0,
     };
 
+    componentWillUpdate = (nextProps, nextState) => {
+        if(nextState.mode !== this.state.mode){
+            nextState.ml = 0;
+            nextState.time_rate = 0;
+        }
+        if(nextState.running !== this.state.running){
+            nextState.volume_unit = 0;
+            nextState.time_rate_unit = 0;
+        }
+    }
+
     fetchData(){
         axios.get(`${API_URL}/status`).then( result => {
             this.setState({
                 running: result.data.running,
                 mode: result.data.mode,
                 ml: result.data.ml,
-                volume_unit: result.volume_unit,
                 time_rate: result.data.time_rate,
                 progress: result.data.progress,
                 steps_per_ml: result.data.steps_per_ml,
@@ -39,12 +49,9 @@ class App extends React.Component {
         });
     }
 
-    /**
-     * Initial data fetch
-     */
     componentDidMount = () => {
         let link = window.location.href.split(':');
-        //API_URL = `${link[0]}:${link[1]}:5000`;
+        API_URL = `${link[0]}:${link[1]}:5000`;
         console.log(API_URL)
         this.fetchData();
     };
@@ -89,7 +96,7 @@ class App extends React.Component {
     };
 
     sendManualStepsToBackend = async () => {
-        await axios.post(`${API_URL}/update_status`,
+        await axios.post(`${API_URL}/manual_move`,
             [
                 this.state.mode,
                 this.state.pull,
@@ -147,15 +154,28 @@ class App extends React.Component {
                         </Col>
                     </Row>
                     {running &&
-                        <div className='w-100'>
-                            <Label className='text-left' for="progress">Running...      timeleft: {time_rate.toFixed(1)}</Label>
-                            <Progress name='progress' animated color="primary" value={progress} />
-                            <Button className='mt-3' color="danger" onClick={this.stopBackend}>STOP</Button>
+                        <div className='content w-100'>
+                            <div className='progressPage'>
+                                <Row>
+                                    <Col className='text-left'>
+                                        <Label className='text-left' for="progress">Running...</Label>
+                                    </Col>
+                                    { mode === 1 &&
+                                        <Col className='text-right'>
+                                            <p>timeleft: {time_rate.toFixed(1)}</p>
+                                        </Col>
+                                    }
+                                </Row>
+                                <Progress name='progress' animated color="primary" value={progress} />
+                                <div className='footer w-100'>
+                                    <Button className='mt-3' color="danger" onClick={this.stopBackend}>STOP</Button>
+                                </div>
+                            </div>
                         </div>
                     }
                     {!running &&
                         <div className='content w-100 text-left'>
-                            {mode == 0 &&
+                            {mode === 0 &&
                                 <>
                                     <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 1} );}}>Volume/Time mode</Button>
                                     <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 2} );}}>ASAP mode</Button>
@@ -163,7 +183,7 @@ class App extends React.Component {
                                     <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 4} );}}>Settings</Button>
                                 </>
                             }
-                            {mode == 1 &&
+                            {mode === 1 &&
                                 <Form>
                                     <div className='form w-100 text-left'>
                                         <div>
@@ -172,7 +192,7 @@ class App extends React.Component {
                                                     <Label className="mt-1">How much?</Label>
                                                 </Col>
                                                 <Col xs="4">
-                                                    <Input type="select" onChange={ (event) => { this.setState({ volume_unit: event.target.value }); } }>
+                                                    <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
                                                         <option value="0">ml</option>
                                                         <option value="1">μl</option>
                                                         <option value="2">nl</option>
@@ -181,7 +201,7 @@ class App extends React.Component {
                                             </Row>
                                             <Row>
                                                 <Col>
-                                                    <Integernumpad value={ml} fn={(value) => { this.setState({ml: value}); }} decimal="4" />
+                                                    <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
                                                 </Col>
                                             </Row>
                                         </div>
@@ -193,7 +213,7 @@ class App extends React.Component {
                                             </Row>
                                             <Row>
                                                 <Col>
-                                                    <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: value}); }} decimal="2" />
+                                                    <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={2} />
                                                 </Col>
                                             </Row>
                                         </div>
@@ -211,7 +231,7 @@ class App extends React.Component {
                                 </Form>
                             }
 
-                            {mode == 2 &&
+                            {mode === 2 &&
                                 <Form>
                                     <div className='form w-100 text-left'>
                                         <div>
@@ -220,7 +240,7 @@ class App extends React.Component {
                                                     <Label className="mt-1">How much?</Label>
                                                 </Col>
                                                 <Col xs="4">
-                                                    <Input type="select" onChange={ (event) => { this.setState({ volume_unit: event.target.value }); } }>
+                                                    <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
                                                         <option value="0">ml</option>
                                                         <option value="1">μl</option>
                                                         <option value="2">nl</option>
@@ -229,7 +249,7 @@ class App extends React.Component {
                                             </Row>
                                             <Row>
                                                 <Col>
-                                                    <Integernumpad value={ml} fn={(value) => { this.setState({ml: value}); }} decimal="4" />
+                                                    <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
                                                 </Col>
                                             </Row>
                                         </div>
@@ -247,7 +267,7 @@ class App extends React.Component {
                                 </Form>
                             }
 
-                            {mode == 3 &&
+                            {mode === 3 &&
                                 <Form>
                                     <div className='form w-100 text-left'>
                                         <div>
@@ -256,7 +276,7 @@ class App extends React.Component {
                                                     <Label className="mt-1">How much?</Label>
                                                 </Col>
                                                 <Col xs="4">
-                                                    <Input type="select" onChange={ (event) => { this.setState({ volume_unit: event.target.value }); } }>
+                                                    <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
                                                         <option value="0">ml</option>
                                                         <option value="1">μl</option>
                                                         <option value="2">nl</option>
@@ -265,7 +285,7 @@ class App extends React.Component {
                                             </Row>
                                             <Row className="mb-1">
                                                 <Col>
-                                                    <Integernumpad value={ml} fn={(value) => { this.setState({ml: value}); }} decimal="4" />
+                                                    <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
                                                 </Col>
                                             </Row>
                                         </div>
@@ -275,7 +295,7 @@ class App extends React.Component {
                                                     <Label className="mt-1">At what rate?</Label>
                                                 </Col>
                                                 <Col xs="4">
-                                                    <Input type="select" onChange={ (event) => { this.setState({ time_rate_unit: event.target.value }); } }>
+                                                    <Input type="select" onChange={ (event) => { this.setState({ time_rate_unit: parseInt(event.target.value) }); } }>
                                                         <option value="0">ml/s</option>
                                                         <option value="1">μl/s</option>
                                                         <option value="2">nl/s</option>
@@ -284,7 +304,7 @@ class App extends React.Component {
                                             </Row>
                                             <Row>
                                                 <Col>
-                                                    <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: value}); }} decimal="2" />
+                                                    <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={2} />
                                                 </Col>
                                             </Row>
                                         </div>
@@ -302,7 +322,7 @@ class App extends React.Component {
                                 </Form>
                             }
 
-                            {mode == 4 &&
+                            {mode === 4 &&
                                 <Form>
                                     <div className='form w-100 text-left'>
                                         <div>
@@ -316,14 +336,13 @@ class App extends React.Component {
                                                             mode: 4,
                                                             pull: false,
                                                             steps: 10000,
-                                                        } );
-                                                        this.sendManualStepsToBackend();
+                                                        }, this.sendManualStepsToBackend);
                                                     }}>Make 10 000 steps</Button>
                                                 </Col>
                                             </Row>
                                             <Row>
                                                 <Col>
-                                                    <Integernumpad value={ml} fn={(value) => { this.setState({steps_per_ml: 10000 / value}); }} decimal="0" />
+                                                    <Integernumpad value={steps_per_ml} fn={(value) => { this.setState({steps_per_ml: parseInt(10000 / parseFloat(value))}); }} decimal={0} />
                                                 </Col>
                                             </Row>
                                         </div>
@@ -335,7 +354,7 @@ class App extends React.Component {
                                             </Row>
                                             <Row>
                                                 <Col>
-                                                    <Integernumpad value={syringe_size} fn={(value) => { this.setState({syringe_size: value}); }} decimal="2" />
+                                                    <Integernumpad value={syringe_size} fn={(value) => { this.setState({syringe_size: parseFloat(value)}); }} decimal={2} />
                                                 </Col>
                                             </Row>
                                         </div>
