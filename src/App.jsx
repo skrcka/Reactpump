@@ -22,6 +22,8 @@ class App extends React.Component {
         steps_per_ml: 0,
         syringe_size: 0,
         steps: 0,
+        screen_lock: false,
+        ip: "",
     };
 
     componentWillUpdate = (nextProps, nextState) => {
@@ -45,6 +47,8 @@ class App extends React.Component {
                 progress: result.data.progress,
                 steps_per_ml: result.data.steps_per_ml,
                 syringe_size: result.data.syringe_size,
+                screen_lock: result.data.screen_lock,
+                ip: result.data.ip,
             });
         });
     }
@@ -118,7 +122,10 @@ class App extends React.Component {
 
     stopBackend = async () => {
         await axios.get(`${API_URL}/stop`)
-        this.fetchData();
+    };
+
+    pauseBackend = async () => {
+        await axios.get(`${API_URL}/pause`)
     };
 
     render() {
@@ -134,12 +141,14 @@ class App extends React.Component {
             steps_per_ml,
             syringe_size,
             steps,
+            screen_lock,
+            ip,
         } = this.state
 
         return (
             <div className="App">
-                <ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />
-                <div className='main'>
+                {/*<ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />*/}
+                <div className='main m-1 p-1'>
                     <Row className="header">
                         <Col xs='3'>
                             <Button className='backbutton mt-1' disabled={mode === 0 || running} color="danger" onClick={() => {this.setState({ mode: 0} );}}>
@@ -153,9 +162,9 @@ class App extends React.Component {
                             <h2 className='appname'>Pump controller</h2>
                         </Col>
                     </Row>
-                    {running &&
-                        <div className='content w-100'>
-                            <div className='progressPage'>
+                    <div className='content  text-left'>
+                        {running &&
+                            <div className='maincontent'>
                                 <Row>
                                     <Col className='text-left'>
                                         <Label className='text-left' for="progress">Running...</Label>
@@ -167,211 +176,233 @@ class App extends React.Component {
                                     }
                                 </Row>
                                 <Progress name='progress' animated color="primary" value={progress} />
-                                <div className='footer w-100'>
-                                    <Button className='mt-3' color="danger" onClick={this.stopBackend}>STOP</Button>
-                                </div>
                             </div>
+                        }
+                        {!running &&
+                            <div className='maincontent'>
+                                {mode === 0 &&
+                                    <div className='menubuttons'>
+                                        <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 1} );}}>Volume/Time mode</Button></div>
+                                        <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 2} );}}>ASAP mode</Button></div>
+                                        <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 3} );}}>Rate mode</Button></div>
+                                        <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 4} );}}>Settings</Button></div>
+                                        <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 5} );}}>About</Button></div>
+                                    </div>
+                                }
+                                {mode === 1 &&
+                                    <Form>
+                                        <div className='form  text-left'>
+                                            <div>
+                                                <Row className="mb-1">
+                                                    <Col>
+                                                        <Label className="mt-1">How much?</Label>
+                                                    </Col>
+                                                    <Col xs="4">
+                                                        <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
+                                                            <option value="0">ml</option>
+                                                            <option value="1">μl</option>
+                                                            <option value="2">nl</option>
+                                                        </Input>
+                                                    </Col>
+                                                </Row>
+                                                <Row>
+                                                    <Col>
+                                                        <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                            <div>
+                                                <Row>
+                                                    <Col>
+                                                        <Label>In how long? (sec)</Label>
+                                                    </Col>
+                                                </Row>
+                                                <Row>
+                                                    <Col>
+                                                        <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={2} />
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                        </div>
+                                    </Form>
+                                }
+
+                                {mode === 2 &&
+                                    <Form>
+                                        <div className='form  text-left'>
+                                            <div>
+                                                <Row className="mb-1">
+                                                    <Col>
+                                                        <Label className="mt-1">How much?</Label>
+                                                    </Col>
+                                                    <Col xs="4">
+                                                        <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
+                                                            <option value="0">ml</option>
+                                                            <option value="1">μl</option>
+                                                            <option value="2">nl</option>
+                                                        </Input>
+                                                    </Col>
+                                                </Row>
+                                                <Row>
+                                                    <Col>
+                                                        <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                        </div>
+                                    </Form>
+                                }
+
+                                {mode === 3 &&
+                                    <Form>
+                                        <div className='form  text-left'>
+                                            <div>
+                                                <Row className="mb-1">
+                                                    <Col>
+                                                        <Label className="mt-1">How much?</Label>
+                                                    </Col>
+                                                    <Col xs="4">
+                                                        <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
+                                                            <option value="0">ml</option>
+                                                            <option value="1">μl</option>
+                                                            <option value="2">nl</option>
+                                                        </Input>
+                                                    </Col>
+                                                </Row>
+                                                <Row className="mb-1">
+                                                    <Col>
+                                                        <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                            <div>
+                                                <Row className="mb-1">
+                                                    <Col>
+                                                        <Label className="mt-1">At what rate?</Label>
+                                                    </Col>
+                                                    <Col xs="4">
+                                                        <Input type="select" onChange={ (event) => { this.setState({ time_rate_unit: parseInt(event.target.value) }); } }>
+                                                            <option value="0">ml/s</option>
+                                                            <option value="1">μl/s</option>
+                                                            <option value="2">nl/s</option>
+                                                        </Input>
+                                                    </Col>
+                                                </Row>
+                                                <Row>
+                                                    <Col>
+                                                        <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={2} />
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                        </div>
+                                    </Form>
+                                }
+
+                                {mode === 4 &&
+                                    <Form>
+                                        <div className='form  text-left'>
+                                            <div>
+                                                <Row className="mb-1">
+                                                    <Col>
+                                                        <Label className="mt-1">Ml / 10000 steps</Label>
+                                                    </Col>
+                                                    <Col xs="6" className="text-right">
+                                                        <Button color="primary" className='calibratebutton mt-1 text-center' onClick={() => {
+                                                            this.setState({ 
+                                                                mode: 4,
+                                                                pull: false,
+                                                                steps: 10000,
+                                                            }, this.sendManualStepsToBackend);
+                                                        }}>Make 10 000 steps</Button>
+                                                    </Col>
+                                                </Row>
+                                                <Row>
+                                                    <Col>
+                                                        <Integernumpad value={10000.0 / steps_per_ml} fn={(value) => { this.setState({steps_per_ml: parseInt(10000 / parseFloat(value))}); }} decimal={0} />
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                            <div>
+                                                <Row className="mb-1">
+                                                    <Col>
+                                                        <Label className="mt-1">Syringe size</Label>
+                                                    </Col>
+                                                </Row>
+                                                <Row>
+                                                    <Col>
+                                                        <Integernumpad value={syringe_size} fn={(value) => { this.setState({syringe_size: parseFloat(value)}); }} decimal={2} />
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                        </div>
+                                    </Form>
+                                }
+                                {mode === 5 &&
+                                    <Form>
+                                        <div className='form  text-left'>
+                                            <div>
+                                                <Row className="mb-1">
+                                                    <Col>
+                                                        <Label for="ip" className="mt-1">IP</Label>
+                                                    </Col>
+                                                </Row>
+                                                <Row>
+                                                    <Col>
+                                                        <Input name="ip" value={ip} disabled />
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                        </div>
+                                    </Form>
+                                }
+                            </div>
+                        }
+                    </div>
+                    {mode !== 0 &&
+                        <div className='footer ml-1 mb-1'>
+                            <Row>
+                                <Col xs="3" className='text-left'>
+                                    {!running &&
+                                        <Button className='backbutton footerbtn' disabled={mode === 0 || running} color="danger" onClick={() => {this.setState({ mode: 0} );}}>
+                                            <svg className='innerfooterbackbutton' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 350">
+                                                <path d="M344.6,222.1H159.2l47.4-47.5c5.3-5.3,5.3-13.8,0-19.1s-13.8-5.3-19.1,0L117,226c-5.3,5.3-5.3,13.8,0,19.1l70.6,70.5
+                                                    c2.6,2.6,6.1,4,9.5,4s6.9-1.3,9.5-4c5.3-5.3,5.3-13.8,0-19.1L159.1,249h185.5c7.5,0,13.5-6,13.5-13.5S352.1,222.1,344.6,222.1z"/>
+                                            </svg>
+                                        </Button>
+                                    }
+                                </Col>
+                                <Col className='text-center'>
+                                    {running && 
+                                        <div className='footerbtn'>
+                                            <Button className='mt-3' color="warning" onClick={this.pauseBackend}>PAUSE</Button>
+                                        </div>
+                                    }
+                                    {!running && [1,2,3].includes(mode) &&
+                                        <div className='footerswitch'>
+                                            <Toggle className='footerswitch' value={pull} fn={ () => { this.setState({ pull: !pull }); } } />
+                                        </div>
+                                    }
+                                </Col>
+                                <Col className="text-center" xs="3">
+                                    {running && 
+                                        <div className='footerbtn'>
+                                            <Button className='mt-3' color="danger" onClick={this.stopBackend}>STOP</Button>
+                                        </div>
+                                    }
+                                    {!running &&
+                                        <div>
+                                            {[1,2,3].includes(mode) &&
+                                                <Button className='mr-1 footerbtn' color="success" onClick={this.sendDataToBackend}><span className='innerfooterbutton'>START</span></Button>
+                                            }
+                                            {mode === 4 &&
+                                                <Button className='mr-2 footerbtn' color="success" onClick={this.sendConfigToBackend}><span className='innerfooterbutton'>SAVE</span></Button>
+                                            }
+                                        </div>
+                                    }
+                                </Col>
+                            </Row>
                         </div>
-                    }
-                    {!running &&
-                        <div className='content w-100 text-left'>
-                            {mode === 0 &&
-                                <>
-                                    <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 1} );}}>Volume/Time mode</Button>
-                                    <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 2} );}}>ASAP mode</Button>
-                                    <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 3} );}}>Rate mode</Button>
-                                    <Button className='w-100 mt-1 text-left' onClick={() => {this.setState({ mode: 4} );}}>Settings</Button>
-                                </>
-                            }
-                            {mode === 1 &&
-                                <Form>
-                                    <div className='form w-100 text-left'>
-                                        <div>
-                                            <Row className="mb-1">
-                                                <Col>
-                                                    <Label className="mt-1">How much?</Label>
-                                                </Col>
-                                                <Col xs="4">
-                                                    <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
-                                                        <option value="0">ml</option>
-                                                        <option value="1">μl</option>
-                                                        <option value="2">nl</option>
-                                                    </Input>
-                                                </Col>
-                                            </Row>
-                                            <Row>
-                                                <Col>
-                                                    <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
-                                                </Col>
-                                            </Row>
-                                        </div>
-                                        <div>
-                                            <Row>
-                                                <Col>
-                                                    <Label>In how long? (sec)</Label>
-                                                </Col>
-                                            </Row>
-                                            <Row>
-                                                <Col>
-                                                    <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={2} />
-                                                </Col>
-                                            </Row>
-                                        </div>
-                                    </div>
-                                    <div className='footer w-100'>
-                                        <Row>
-                                            <Col className="mt-3 ml-1">
-                                                <Toggle value={pull} fn={ () => { this.setState({ pull: !pull }); } } />
-                                            </Col>
-                                            <Col className="text-right" xs="4">
-                                                <Button color="success" onClick={this.sendDataToBackend}>START</Button>
-                                            </Col>
-                                        </Row>
-                                    </div>
-                                </Form>
-                            }
-
-                            {mode === 2 &&
-                                <Form>
-                                    <div className='form w-100 text-left'>
-                                        <div>
-                                            <Row className="mb-1">
-                                                <Col>
-                                                    <Label className="mt-1">How much?</Label>
-                                                </Col>
-                                                <Col xs="4">
-                                                    <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
-                                                        <option value="0">ml</option>
-                                                        <option value="1">μl</option>
-                                                        <option value="2">nl</option>
-                                                    </Input>
-                                                </Col>
-                                            </Row>
-                                            <Row>
-                                                <Col>
-                                                    <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
-                                                </Col>
-                                            </Row>
-                                        </div>
-                                    </div>
-                                    <div className='footer w-100'>
-                                        <Row>
-                                            <Col className="mt-3 ml-1">
-                                                <Toggle value={pull} fn={ () => { this.setState({ pull: !pull }); } } />
-                                            </Col>
-                                            <Col className="text-right" xs="4">
-                                                <Button color="success" onClick={this.sendDataToBackend}>START</Button>
-                                            </Col>
-                                        </Row>
-                                    </div>
-                                </Form>
-                            }
-
-                            {mode === 3 &&
-                                <Form>
-                                    <div className='form w-100 text-left'>
-                                        <div>
-                                            <Row className="mb-1">
-                                                <Col>
-                                                    <Label className="mt-1">How much?</Label>
-                                                </Col>
-                                                <Col xs="4">
-                                                    <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
-                                                        <option value="0">ml</option>
-                                                        <option value="1">μl</option>
-                                                        <option value="2">nl</option>
-                                                    </Input>
-                                                </Col>
-                                            </Row>
-                                            <Row className="mb-1">
-                                                <Col>
-                                                    <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
-                                                </Col>
-                                            </Row>
-                                        </div>
-                                        <div>
-                                            <Row className="mb-1">
-                                                <Col>
-                                                    <Label className="mt-1">At what rate?</Label>
-                                                </Col>
-                                                <Col xs="4">
-                                                    <Input type="select" onChange={ (event) => { this.setState({ time_rate_unit: parseInt(event.target.value) }); } }>
-                                                        <option value="0">ml/s</option>
-                                                        <option value="1">μl/s</option>
-                                                        <option value="2">nl/s</option>
-                                                    </Input>
-                                                </Col>
-                                            </Row>
-                                            <Row>
-                                                <Col>
-                                                    <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={2} />
-                                                </Col>
-                                            </Row>
-                                        </div>
-                                    </div>
-                                    <div className='footer w-100'>
-                                        <Row>
-                                            <Col className="mt-3 ml-1">
-                                                <Toggle value={pull} fn={ () => { this.setState({ pull: !pull }); } } />
-                                            </Col>
-                                            <Col className="text-right" xs="4">
-                                                <Button color="success" onClick={this.sendDataToBackend}>START</Button>
-                                            </Col>
-                                        </Row>
-                                    </div>
-                                </Form>
-                            }
-
-                            {mode === 4 &&
-                                <Form>
-                                    <div className='form w-100 text-left'>
-                                        <div>
-                                            <Row className="mb-1">
-                                                <Col>
-                                                    <Label className="mt-1">Ml / 10000 steps</Label>
-                                                </Col>
-                                                <Col xs="7 text-right">
-                                                    <Button color="primary" className='calibratebutton mt-1 text-center' onClick={() => {
-                                                        this.setState({ 
-                                                            mode: 4,
-                                                            pull: false,
-                                                            steps: 10000,
-                                                        }, this.sendManualStepsToBackend);
-                                                    }}>Make 10 000 steps</Button>
-                                                </Col>
-                                            </Row>
-                                            <Row>
-                                                <Col>
-                                                    <Integernumpad value={10000.0 / steps_per_ml} fn={(value) => { this.setState({steps_per_ml: parseInt(10000 / parseFloat(value))}); }} decimal={0} />
-                                                </Col>
-                                            </Row>
-                                        </div>
-                                        <div>
-                                            <Row className="mb-1">
-                                                <Col>
-                                                    <Label className="mt-1">Syringe size</Label>
-                                                </Col>
-                                            </Row>
-                                            <Row>
-                                                <Col>
-                                                    <Integernumpad value={syringe_size} fn={(value) => { this.setState({syringe_size: parseFloat(value)}); }} decimal={2} />
-                                                </Col>
-                                            </Row>
-                                        </div>
-                                    </div>
-                                    <div className='footer w-100'>
-                                        <Row>
-                                            <Col>
-                                            </Col>
-                                            <Col className="text-right" xs="4">
-                                                <Button color="success" onClick={this.sendConfigToBackend}>SAVE</Button>
-                                            </Col>
-                                        </Row>
-                                    </div>
-                                </Form>
-                            }
-                        </div>
-                    }
+                    }  
                 </div>
             </div>
         );

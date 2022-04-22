@@ -20,9 +20,12 @@
 }
 
 .footer {
-    flex-grow : 1;
+    flex-grow: 1;
     position: absolute;
-	bottom: 10px;
+	bottom: 0;
+	left: 0;
+    display: block;
+    width: 312px;
 }
 
 .header {
@@ -57,13 +60,16 @@ input {
     display: flex;
     flex-flow: column;
     flex-direction: column;
+    position: relative;
+    display: block;
 }
 
-form {
+.maincontent {
+    height: auto;
     flex-grow : 1;
     display: flex;
     flex-flow: column;
-    position: relative;
+    display: block;
 }
 
 .progressPage{
@@ -73,16 +79,13 @@ form {
     position: relative;
 }
 
-.form {
-    height: auto;
-}
-
 .content {
     flex-grow : 1;
     display: flex;
     flex-flow: column;
     flex-direction: column;
     height: 100%;
+    display: block;
 }
 
 .calibratebutton {
@@ -91,5 +94,33 @@ form {
 }
 
 .progress {
-    min-width: 350px;
+    min-width: 310px;
+}
+
+.footerbtn {
+    height: 30px;
+    width: 62px;
+}
+
+.footerswitch {
+    position: absolute;
+    bottom: 15px;
+	left: 40px;
+}
+
+.menubutton {
+    display: block;
+    height: 36px;
+}
+
+.innerfooterbutton {
+    position: relative;
+    top: -5px;
+    left: -3px;
+}
+
+.innerfooterbackbutton {
+    position: relative;
+    top: -12px;
+    left: 2px;
 }

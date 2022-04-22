@@ -30,7 +30,7 @@ class Toggle extends React.Component {
             }}
           trackStyle={{
               position: 'absolute',
-              height: 32,
+              height: 25,
               width: 90,
               display: 'flex',
               alignItems: 'center',
@@ -38,8 +38,8 @@ class Toggle extends React.Component {
           }}
           thumbStyle={{
               position: 'absolute',
-              width: 37,
-              height: 37,
+              width: 32,
+              height: 32,
               boxShadow: `0 0 2px rgba(0,0,0,.12),0 2px 4px rgba(0,0,0,.24)`,
               display: 'flex',
               borderRadius: 50,
@@ -47,10 +47,10 @@ class Toggle extends React.Component {
               justifyContent: 'center',
           }}
           thumbStyleHover={{
-              width: 38,
-              height: 38,
+              width: 33,
+              height: 33,
           }}
-          thumbAnimateRange={[0, 52]}
+          thumbAnimateRange={[0, 58]}
           animateThumbStyleHover={(n) => {
               return {
               boxShadow: `0 0 ${2 + 4*n}px rgba(0,0,0,.16),0 ${2 + 3*n}px ${4 + 8*n}px rgba(0,0,0,.32)`,
