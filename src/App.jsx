@@ -24,6 +24,7 @@ class App extends React.Component {
         steps: 0,
         screen_lock: false,
         ip: "",
+        pause: false,
     };
 
     componentWillUpdate = (nextProps, nextState) => {
@@ -49,6 +50,7 @@ class App extends React.Component {
                 syringe_size: result.data.syringe_size,
                 screen_lock: result.data.screen_lock,
                 ip: result.data.ip,
+                pause: result.data.pause,
             });
         });
     }
@@ -72,6 +74,7 @@ class App extends React.Component {
                 time_rate: result.data.time_rate,
                 progress: result.data.progress,
                 mode: result.data.mode,
+                pause: result.data.pause,
             });
         }
         else {
@@ -81,7 +84,8 @@ class App extends React.Component {
                     time_rate: result.data.time_rate,
                     running: result.data.running,
                     mode: result.data.mode,
-            });
+                    pause: result.data.pause,
+                });
         }
     }
 
@@ -143,6 +147,7 @@ class App extends React.Component {
             steps,
             screen_lock,
             ip,
+            pause,
         } = this.state
 
         return (
@@ -372,9 +377,14 @@ class App extends React.Component {
                                     }
                                 </Col>
                                 <Col className='text-center'>
-                                    {running && 
+                                    {running && !pause && 
                                         <div className='footerbtn'>
                                             <Button className='mt-3' color="warning" onClick={this.pauseBackend}>PAUSE</Button>
+                                        </div>
+                                    }
+                                    {running && pause && 
+                                        <div className='footerbtn'>
+                                            <Button className='mt-3' color="warning" onClick={this.pauseBackend}>RESUME</Button>
                                         </div>
                                     }
                                     {!running && [1,2,3].includes(mode) &&
