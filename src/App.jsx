@@ -13,6 +13,7 @@ class App extends React.Component {
     state = {
         running: false,
         mode: 0, // 1 default, 2 asap
+        ml_in_pump: 0,
         ml: 0,
         volume_unit: 0,
         time_rate: 0,
@@ -44,6 +45,7 @@ class App extends React.Component {
                 running: result.data.running,
                 mode: result.data.mode,
                 ml: result.data.ml,
+                ml_in_pump: result.data.ml_in_pump,
                 time_rate: result.data.time_rate,
                 progress: result.data.progress,
                 steps_per_ml: result.data.steps_per_ml,
@@ -70,6 +72,7 @@ class App extends React.Component {
                 });
             this.setState({
                 ml: result.data.ml,
+                ml_in_pump: result.data.ml_in_pump,
                 time_rate: result.data.time_rate,
                 progress: result.data.progress,
                 mode: result.data.mode,
@@ -80,6 +83,7 @@ class App extends React.Component {
             if(this.state.running)
                 this.setState({
                     ml: result.data.ml,
+                    ml_in_pump: result.data.ml_in_pump,
                     time_rate: result.data.time_rate,
                     running: result.data.running,
                     mode: result.data.mode,
@@ -136,6 +140,7 @@ class App extends React.Component {
             running,
             mode,
             ml,
+            ml_in_pump,
             volume_unit,
             time_rate,
             time_rate_unit,
@@ -154,17 +159,7 @@ class App extends React.Component {
                 {/*<ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />*/}
                 <div className='main m-1 p-1'>
                     <Row className="header">
-                        <Col xs='3'>
-                            <Button className='backbutton mt-1' disabled={mode === 0 || running} color="danger" onClick={() => {this.setState({ mode: 0} );}}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 150 471.2 471.2">
-                                    <path d="M344.6,222.1H159.2l47.4-47.5c5.3-5.3,5.3-13.8,0-19.1s-13.8-5.3-19.1,0L117,226c-5.3,5.3-5.3,13.8,0,19.1l70.6,70.5
-                                        c2.6,2.6,6.1,4,9.5,4s6.9-1.3,9.5-4c5.3-5.3,5.3-13.8,0-19.1L159.1,249h185.5c7.5,0,13.5-6,13.5-13.5S352.1,222.1,344.6,222.1z"/>
-                                </svg>
-                            </Button>
-                        </Col>
-                        <Col>
-                            <h2 className='appname'>Pump controller</h2>
-                        </Col>
+                        
                     </Row>
                     <div className='content text-left'>
                         {running &&
@@ -274,7 +269,7 @@ class App extends React.Component {
                                                     <Col>
                                                         <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
                                                                 this.setState({ 
-                                                                    mode: 4,
+                                                                    mode: 5,
                                                                     pull: true,
                                                                     steps: 1000,
                                                                 }, this.sendManualStepsToBackend);
@@ -283,7 +278,7 @@ class App extends React.Component {
                                                     <Col>
                                                         <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
                                                                 this.setState({ 
-                                                                    mode: 4,
+                                                                    mode: 5,
                                                                     pull: true,
                                                                     steps: 100,
                                                                 }, this.sendManualStepsToBackend);
@@ -292,7 +287,7 @@ class App extends React.Component {
                                                     <Col>
                                                         <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
                                                                 this.setState({ 
-                                                                    mode: 4,
+                                                                    mode: 5,
                                                                     pull: false,
                                                                     steps: 1000,
                                                                 }, this.sendManualStepsToBackend);
@@ -301,7 +296,7 @@ class App extends React.Component {
                                                     <Col>
                                                         <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
                                                                 this.setState({ 
-                                                                    mode: 4,
+                                                                    mode: 5,
                                                                     pull: false,
                                                                     steps: 10000,
                                                                 }, this.sendManualStepsToBackend);
