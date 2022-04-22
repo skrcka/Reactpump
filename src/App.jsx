@@ -22,7 +22,7 @@ class App extends React.Component {
         steps_per_ml: 0,
         syringe_size: 0,
         steps: 0,
-        screen_lock: false,
+        screen_lock: 0,
         ip: "",
         pause: false,
     };
@@ -48,7 +48,6 @@ class App extends React.Component {
                 progress: result.data.progress,
                 steps_per_ml: result.data.steps_per_ml,
                 syringe_size: result.data.syringe_size,
-                screen_lock: result.data.screen_lock,
                 ip: result.data.ip,
                 pause: result.data.pause,
             });
@@ -59,7 +58,7 @@ class App extends React.Component {
         let link = window.location.href.split(':');
         API_URL = `${link[0]}:${link[1]}:5000`;
         console.log(API_URL)
-        this.fetchData();
+        //this.fetchData();
     };
 
     checkForUpdates = async () => {
@@ -154,6 +153,16 @@ class App extends React.Component {
             <div className="App">
                 {/*<ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />*/}
                 <div className='main m-1 p-1'>
+                    {screen_lock > 0 &&
+                        <div className='mymodal'>
+                            <Button color="warning" className='lockbutton' onClick={() => { this.setState({screen_lock: screen_lock-1}); }}>
+                                <svg fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="100px" height="100px">
+                                    <path d="M 12 1 C 8.6761905 1 6 3.6761905 6 7 L 6 8 C 4.9069372 8 4 8.9069372 4 10 L 4 20 C 4 21.093063 4.9069372 22 6 22 L 18 22 C 19.093063 22 20 21.093063 20 20 L 20 10 C 20 8.9069372 19.093063 8 18 8 L 18 7 C 18 3.6761905 15.32381 1 12 1 z M 12 3 C 14.27619 3 16 4.7238095 16 7 L 16 8 L 8 8 L 8 7 C 8 4.7238095 9.7238095 3 12 3 z M 6 10 L 18 10 L 18 20 L 6 20 L 6 10 z M 12 13 C 10.9 13 10 13.9 10 15 C 10 16.1 10.9 17 12 17 C 13.1 17 14 16.1 14 15 C 14 13.9 13.1 13 12 13 z"/>
+                                </svg>
+                            </Button>
+                            <span>Click 3 times to unlock!</span>
+                        </div>
+                    }
                     <Row className="header">
                         <Col xs='3'>
                             <Button className='backbutton mt-1' disabled={mode === 0 || running} color="danger" onClick={() => {this.setState({ mode: 0} );}}>
@@ -167,7 +176,7 @@ class App extends React.Component {
                             <h2 className='appname'>Pump controller</h2>
                         </Col>
                     </Row>
-                    <div className='content  text-left'>
+                    <div className='content text-left'>
                         {running &&
                             <div className='maincontent'>
                                 <Row>
@@ -251,6 +260,50 @@ class App extends React.Component {
                                                 <Row>
                                                     <Col>
                                                         <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
+                                                    </Col>
+                                                </Row>
+
+                                                <Row className="mt-3">
+                                                    <Col>
+                                                        <Label className="mt-1">Move manually</Label>
+                                                    </Col>
+                                                </Row>
+                                                <Row className=''>
+                                                    <Col>
+                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
+                                                                this.setState({ 
+                                                                    mode: 4,
+                                                                    pull: true,
+                                                                    steps: 1000,
+                                                                }, this.sendManualStepsToBackend);
+                                                            }}>{"<<"}</Button>
+                                                    </Col>
+                                                    <Col>
+                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
+                                                                this.setState({ 
+                                                                    mode: 4,
+                                                                    pull: true,
+                                                                    steps: 100,
+                                                                }, this.sendManualStepsToBackend);
+                                                            }}>{"<"}</Button>
+                                                    </Col>
+                                                    <Col>
+                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
+                                                                this.setState({ 
+                                                                    mode: 4,
+                                                                    pull: false,
+                                                                    steps: 1000,
+                                                                }, this.sendManualStepsToBackend);
+                                                            }}>{">"}</Button>
+                                                    </Col>
+                                                    <Col>
+                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
+                                                                this.setState({ 
+                                                                    mode: 4,
+                                                                    pull: false,
+                                                                    steps: 10000,
+                                                                }, this.sendManualStepsToBackend);
+                                                            }}>{">>"}</Button>
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -367,6 +420,11 @@ class App extends React.Component {
                         <div className='footer ml-1 mb-1'>
                             <Row>
                                 <Col xs="3" className='text-left'>
+                                    {running &&
+                                        <div className='footerbtn'>
+                                            <Button className='mt-3' color="warning" onClick={this.setState({screen_lock: 3})}>LOCK</Button>
+                                        </div>
+                                    }
                                     {!running &&
                                         <Button className='backbutton footerbtn' disabled={mode === 0 || running} color="danger" onClick={() => {this.setState({ mode: 0} );}}>
                                             <svg className='innerfooterbackbutton' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 350">
