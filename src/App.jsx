@@ -3,6 +3,7 @@ import './App.css';
 import { Input, Progress, Button, Label, Form, FormGroup, Container, Row, Col } from 'reactstrap'
 import ReactInterval from 'react-interval';
 import axios from 'axios';
+import QRCode from "react-qr-code";
 
 import Toggle from './Toggle'
 import Integernumpad from './Integernumpad'
@@ -243,7 +244,7 @@ class App extends React.Component {
                                         <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 2} );}}>ASAP mode</Button></div>
                                         <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 3} );}}>Rate mode</Button></div>
                                         <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 4} );}}>Settings</Button></div>
-                                        <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 5} );}}>About</Button></div>
+                                        <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 5} );}}>Remote control</Button></div>
                                     </div>
                                 }
                                 {mode === 1 &&
@@ -470,18 +471,9 @@ class App extends React.Component {
                                 }
                                 {mode === 5 &&
                                     <Form>
-                                        <div className='form text-left'>
+                                        <div className='text-center'>
                                             <div>
-                                                <Row className="mb-1">
-                                                    <Col>
-                                                        <Label for="ip" className="mt-1">IP</Label>
-                                                    </Col>
-                                                </Row>
-                                                <Row>
-                                                    <Col>
-                                                        <Input name="ip" value={ip} disabled />
-                                                    </Col>
-                                                </Row>
+                                                <QRCode size="170" value={`http://${ip}:3000`} />
                                             </div>
                                         </div>
                                     </Form>
