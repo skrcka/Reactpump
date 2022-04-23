@@ -266,18 +266,18 @@ class App extends React.Component {
                                                     <Col>
                                                         <Integernumpad value={ml.toFixed(4)} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
                                                     </Col>
+                                                </Row>
+                                            </div>
+                                            <div>
+                                                <Row className='mb-1 mt-1'>
+                                                    <Col>
+                                                        <Label>In how long?</Label>
+                                                    </Col>
                                                     <Col xs="4">
                                                         <Input type="select" onChange={ (event) => { this.setState({ time_rate_unit: parseInt(event.target.value) }); } }>
                                                             <option value="0">s</option>
                                                             <option value="1">min</option>
                                                         </Input>
-                                                    </Col>
-                                                </Row>
-                                            </div>
-                                            <div>
-                                                <Row>
-                                                    <Col>
-                                                        <Label>In how long? (sec)</Label>
                                                     </Col>
                                                 </Row>
                                                 <Row>
