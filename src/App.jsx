@@ -12,8 +12,8 @@ let API_URL = 'HTTP://10.0.28.171:5000'; // 'HTTP://10.0.28.171:5000' 'HTTP://12
 
 class App extends React.Component {
     state = {
-        running: false,
-        mode: 0, // 1 default, 2 asap
+        running: true,
+        mode: 1, // 1 default, 2 asap
         ml: 0,
         ml_in_pump: 0,
         total_ml: 0,
@@ -28,6 +28,10 @@ class App extends React.Component {
         screen_lock: 0,
         ip: "",
         pause: false,
+        bolus_dose: 0,
+        active_bolus_dose: 0,
+        bolus_cooldown: 0,
+        active_bolus_cooldown: 0,
     };
 
     componentWillUpdate = (nextProps, nextState) => {
@@ -54,6 +58,10 @@ class App extends React.Component {
                 syringe_size: result.data.syringe_size,
                 ip: result.data.ip,
                 pause: result.data.pause,
+                bolus_dose: result.data.bolus_dose,
+                active_bolus_dose: result.data.active_bolus_dose,
+                bolus_cooldown: result.data.bolus_cooldown,
+                active_bolus_cooldown: result.data.active_bolus_cooldown,
             });
         });
     }
@@ -79,6 +87,10 @@ class App extends React.Component {
                 progress: result.data.progress,
                 mode: result.data.mode,
                 pause: result.data.pause,
+                bolus_dose: result.data.bolus_dose,
+                active_bolus_dose: result.data.active_bolus_dose,
+                bolus_cooldown: result.data.bolus_cooldown,
+                active_bolus_cooldown: result.data.active_bolus_cooldown,
             });
         }
         else {
@@ -90,6 +102,10 @@ class App extends React.Component {
                     running: result.data.running,
                     mode: result.data.mode,
                     pause: result.data.pause,
+                    bolus_dose: result.data.bolus_dose,
+                    active_bolus_dose: result.data.active_bolus_dose,
+                    bolus_cooldown: result.data.bolus_cooldown,
+                    active_bolus_cooldown: result.data.active_bolus_cooldown,
                 });
         }
     }
@@ -127,17 +143,23 @@ class App extends React.Component {
                 this.state.steps_per_ml,
                 this.state.syringe_size,
                 this.state.ml_in_pump,
+                this.state.bolus_dose,
+                this.state.bolus_cooldown,
             ]
         );
         this.fetchData();
     };
 
     stopBackend = async () => {
-        await axios.get(`${API_URL}/stop`)
+        await axios.get(`${API_URL}/stop`);
     };
 
     pauseBackend = async () => {
-        await axios.get(`${API_URL}/pause`)
+        await axios.get(`${API_URL}/pause`);
+    };
+
+    sendBolus = async () => {
+        await axios.get(`${API_URL}/bolus`);
     };
 
     render() {
@@ -158,6 +180,10 @@ class App extends React.Component {
             screen_lock,
             ip,
             pause,
+            bolus_dose,
+            active_bolus_dose,
+            bolus_cooldown,
+            active_bolus_cooldown,
         } = this.state
 
         return (
@@ -499,7 +525,12 @@ class App extends React.Component {
                                         </Button>
                                     }
                                 </Col>
-                                <Col className='text-center'>
+                                <Col xs="3" className='text-center'>
+                                    {running && !pause && [1,3].includes(mode) && 
+                                        <Button disabled={active_bolus_cooldown} className='mr-2 pr-1 footerbtn' color="success" onClick={this.sendBolus}><span className='innerfooterbutton'>{active_bolus_cooldown ? active_bolus_cooldown.toFixed(0) : "BOLUS"}</span></Button>
+                                    }
+                                </Col>
+                                <Col xs="3" className='text-center'>
                                     {running && !pause && mode !==4 && 
                                         <Button className='mr-2 pr-1 footerbtn' color="warning" onClick={this.pauseBackend}><span className='innerfooterbutton'>PAUSE</span></Button>
                                     }
