@@ -178,7 +178,7 @@ class App extends React.Component {
                         </div>
                     </div>
                     <div className='content text-left'>
-                        {running && mode !==4 &&
+                        {running && mode !== 4 &&
                             <div>
                                 {screen_lock > 0 &&
                                     <div className='mymodal'>
@@ -265,6 +265,12 @@ class App extends React.Component {
                                                 <Row>
                                                     <Col>
                                                         <Integernumpad value={ml.toFixed(4)} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
+                                                    </Col>
+                                                    <Col xs="4">
+                                                        <Input type="select" onChange={ (event) => { this.setState({ time_rate_unit: parseInt(event.target.value) }); } }>
+                                                            <option value="0">s</option>
+                                                            <option value="1">min</option>
+                                                        </Input>
                                                     </Col>
                                                 </Row>
                                             </div>
