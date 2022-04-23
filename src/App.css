@@ -15,10 +15,6 @@
     text-align: left;
 }
 
-.backbutton {
-    border-radius: 50%;
-}
-
 .footer {
     flex-grow: 1;
     position: absolute;
@@ -32,6 +28,22 @@
     height: 30px;
 }
 
+.statusbar {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 6px;
+    padding-right: 6px;
+    background-color: black;
+    height: 100%;
+    border-radius: 0.25rem;
+    display: flex;
+}
+
+.maxheightlimit {
+    max-height: 100%!important;
+    height: 50px;
+}
+
 .backbutton {
     height: 25px;
 }
@@ -42,7 +54,6 @@ input {
 
 .form-select {
     height: 35px;
-    font-size: 10%;
     text-align: top;
 }
 
@@ -93,10 +104,6 @@ input {
     font-size: 13px!important;
 }
 
-.progress {
-    min-width: 310px;
-}
-
 .footerbtn {
     height: 30px;
     width: 62px;
@@ -143,4 +150,26 @@ input {
 
 .lockbutton {
     border-radius: 20%!important;
+}
+
+.textDanger {
+    color: red;
+}
+
+.textSuccess {
+    color: green;
+}
+
+.smallinput {
+    height: 25px;
+}
+
+.progress {
+    height: 25px;
+    min-height: 25px;
+    max-height: 25px;
+}
+
+.progressinput {
+    font-size: 14px;
 }

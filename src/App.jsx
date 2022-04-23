@@ -13,8 +13,9 @@ class App extends React.Component {
     state = {
         running: false,
         mode: 0, // 1 default, 2 asap
-        ml_in_pump: 0,
         ml: 0,
+        ml_in_pump: 0,
+        total_ml: 0,
         volume_unit: 0,
         time_rate: 0,
         time_rate_unit: 0,
@@ -38,7 +39,7 @@ class App extends React.Component {
             nextState.time_rate_unit = 0;
         }
     }
-
+    
     fetchData(){
         axios.get(`${API_URL}/status`).then( result => {
             this.setState({
@@ -93,6 +94,7 @@ class App extends React.Component {
     }
 
     sendDataToBackend = async () => {
+        this.setState({total_ml: this.ml});
         await axios.post(`${API_URL}/update_status`,
             [
                 this.state.mode,
@@ -107,6 +109,7 @@ class App extends React.Component {
     };
 
     sendManualStepsToBackend = async () => {
+        this.setState({total_ml: this.state.steps_per_ml / this.state.steps});
         await axios.post(`${API_URL}/manual_move`,
             [
                 this.state.mode,
@@ -122,6 +125,7 @@ class App extends React.Component {
             [
                 this.state.steps_per_ml,
                 this.state.syringe_size,
+                this.state.ml_in_pump,
             ]
         );
         this.fetchData();
@@ -141,6 +145,7 @@ class App extends React.Component {
             mode,
             ml,
             ml_in_pump,
+            total_ml,
             volume_unit,
             time_rate,
             time_rate_unit,
@@ -158,38 +163,79 @@ class App extends React.Component {
             <div className="App">
                 {/*<ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />*/}
                 <div className='main m-1 p-1'>
-                    <Row className="header">
-                        
-                    </Row>
-                    <div className='content text-left'>
-                        {running &&
-                        <>
-                            {screen_lock > 0 &&
-                                <div className='mymodal'>
-                                    <Button color="warning" className='lockbutton' onClick={() => { this.setState({screen_lock: screen_lock-1}); }}>
-                                        <svg fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="100px" height="100px">
-                                            <path d="M 12 1 C 8.6761905 1 6 3.6761905 6 7 L 6 8 C 4.9069372 8 4 8.9069372 4 10 L 4 20 C 4 21.093063 4.9069372 22 6 22 L 18 22 C 19.093063 22 20 21.093063 20 20 L 20 10 C 20 8.9069372 19.093063 8 18 8 L 18 7 C 18 3.6761905 15.32381 1 12 1 z M 12 3 C 14.27619 3 16 4.7238095 16 7 L 16 8 L 8 8 L 8 7 C 8 4.7238095 9.7238095 3 12 3 z M 6 10 L 18 10 L 18 20 L 6 20 L 6 10 z M 12 13 C 10.9 13 10 13.9 10 15 C 10 16.1 10.9 17 12 17 C 13.1 17 14 16.1 14 15 C 14 13.9 13.1 13 12 13 z"/>
-                                        </svg>
-                                    </Button>
-                                    <span>Click 3 times to unlock!</span>
-                                </div>
-                            }
-                            <div className='maincontent'>
-                                <Row>
-                                    <Col className='text-left'>
-                                        <Label className='text-left' for="progress">Running...</Label>
-                                    </Col>
-                                    { mode === 1 &&
-                                        <Col className='text-right'>
-                                            <p>timeleft: {time_rate.toFixed(1)}</p>
-                                        </Col>
+                    <div className="header mb-1">
+                        <div className='maxheightlimit'>
+                            <div className='text-left statusbar maxheightlimit'>
+                                <Col>
+                                    <p className={running ? 'textDanger' : 'textSuccess'}>{ml_in_pump.toFixed(3)} ml {running ? (pull ? '↓' : '↑') : ''}</p>
+                                </Col>
+                                <Col className='text-right'>
+                                    {ip &&
+                                        <p>IP: {ip}</p>
                                     }
-                                </Row>
-                                <Progress name='progress' animated color="primary" value={progress} />
+                                </Col>
                             </div>
-                        </>
+                        </div>
+                    </div>
+                    <div className='content text-left'>
+                        {running && mode !==4 &&
+                            <div>
+                                {screen_lock > 0 &&
+                                    <div className='mymodal'>
+                                        <Button color="warning" className='lockbutton' onClick={() => { this.setState({screen_lock: screen_lock-1}); }}>
+                                            <svg fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="100px" height="100px">
+                                                <path d="M 12 1 C 8.6761905 1 6 3.6761905 6 7 L 6 8 C 4.9069372 8 4 8.9069372 4 10 L 4 20 C 4 21.093063 4.9069372 22 6 22 L 18 22 C 19.093063 22 20 21.093063 20 20 L 20 10 C 20 8.9069372 19.093063 8 18 8 L 18 7 C 18 3.6761905 15.32381 1 12 1 z M 12 3 C 14.27619 3 16 4.7238095 16 7 L 16 8 L 8 8 L 8 7 C 8 4.7238095 9.7238095 3 12 3 z M 6 10 L 18 10 L 18 20 L 6 20 L 6 10 z M 12 13 C 10.9 13 10 13.9 10 15 C 10 16.1 10.9 17 12 17 C 13.1 17 14 16.1 14 15 C 14 13.9 13.1 13 12 13 z"/>
+                                            </svg>
+                                        </Button>
+                                        <span>Click 3 times to unlock!</span>
+                                    </div>
+                                }
+                                <div className='maincontent'>
+                                    <div className='form'>
+                                        <Row>
+                                            <Col className='text-left'>
+                                                <Label className='text-left' for="progress">Running...</Label>
+                                            </Col>
+                                            { mode === 1 &&
+                                                <Col className='text-right'>
+                                                    <Label>timeleft: {time_rate.toFixed(1)}</Label>
+                                                </Col>
+                                            }
+                                            { mode === 3 &&
+                                                <Col className='text-right'>
+                                                    <Label>timeleft: {(ml / time_rate).toFixed(1)}</Label>
+                                                </Col>
+                                            }
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                <Progress name='progress' animated color="primary" value={progress} />
+                                            </Col>
+                                            <Col sm="3" className='text-right'>
+                                                <Input disabled className='smallinput progressinput' name='progress' animated value={`${progress}%`} />
+                                            </Col>
+                                        </Row>
+                                        <Row className="mb-1">
+                                            <Col>
+                                                <Label className="mt-1">Total amount</Label>
+                                            </Col>
+                                            <Col>
+                                                <Label className="mt-1">Left to push</Label>
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                <Input disabled value={total_ml.toFixed(2)} />
+                                            </Col>
+                                            <Col>
+                                                <Input disabled value={ml.toFixed(2)} />
+                                            </Col>
+                                        </Row>
+                                    </div>
+                                </div>
+                            </div>
                         }
-                        {!running &&
+                        {(!running || mode === 4) &&
                             <div className='maincontent'>
                                 {mode === 0 &&
                                     <div className='menubuttons'>
@@ -218,7 +264,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
+                                                        <Integernumpad value={ml.toFixed(4)} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -230,7 +276,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={2} />
+                                                        <Integernumpad value={time_rate.toFixed(2)} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={2} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -240,7 +286,7 @@ class App extends React.Component {
 
                                 {mode === 2 &&
                                     <Form>
-                                        <div className='form  text-left'>
+                                        <div className='form text-left'>
                                             <div>
                                                 <Row className="mb-1">
                                                     <Col>
@@ -256,7 +302,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
+                                                        <Integernumpad value={ml.toFixed(4)} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
                                                     </Col>
                                                 </Row>
 
@@ -265,42 +311,60 @@ class App extends React.Component {
                                                         <Label className="mt-1">Move manually</Label>
                                                     </Col>
                                                 </Row>
-                                                <Row className=''>
-                                                    <Col>
-                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
+                                                <Row className='ml-0 mr-0 pl-0 pr-0'>
+                                                    <Col xs="2" className='pl-0 pr-1 ml-0 mr-0'>
+                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100 p-0 m-0' onClick={() => {
                                                                 this.setState({ 
                                                                     mode: 5,
                                                                     pull: true,
                                                                     steps: 1000,
                                                                 }, this.sendManualStepsToBackend);
-                                                            }}>{"<<"}</Button>
+                                                            }}>{"<<<"}</Button>
                                                     </Col>
-                                                    <Col>
-                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
+                                                    <Col xs="2" className='pr-1 pl-1 ml-0 mr-0'>
+                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100 p-0 m-0' onClick={() => {
                                                                 this.setState({ 
                                                                     mode: 5,
                                                                     pull: true,
                                                                     steps: 100,
                                                                 }, this.sendManualStepsToBackend);
+                                                            }}>{"<<"}</Button>
+                                                    </Col>
+                                                    <Col xs="2" className='pl-1 pr-1 ml-0 mr-0'>
+                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100 p-0 m-0' onClick={() => {
+                                                                this.setState({ 
+                                                                    mode: 5,
+                                                                    pull: true,
+                                                                    steps: 10,
+                                                                }, this.sendManualStepsToBackend);
                                                             }}>{"<"}</Button>
                                                     </Col>
-                                                    <Col>
-                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
+                                                    <Col xs="2" className='pl-1 pr-1 ml-0 mr-0'>
+                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100 p-0 m-0' onClick={() => {
+                                                                this.setState({ 
+                                                                    mode: 5,
+                                                                    pull: false,
+                                                                    steps: 10,
+                                                                }, this.sendManualStepsToBackend);
+                                                            }}>{">"}</Button>
+                                                    </Col>
+                                                    <Col xs="2" className='pr-1 pl-1 ml-0 mr-0'>
+                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100 p-0 m-0' onClick={() => {
+                                                                this.setState({ 
+                                                                    mode: 5,
+                                                                    pull: false,
+                                                                    steps: 100,
+                                                                }, this.sendManualStepsToBackend);
+                                                            }}>{">>"}</Button>
+                                                    </Col>
+                                                    <Col xs="2" className='pl-1 pr-0 ml-0 mr-0'>
+                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100 p-0 m-0' onClick={() => {
                                                                 this.setState({ 
                                                                     mode: 5,
                                                                     pull: false,
                                                                     steps: 1000,
                                                                 }, this.sendManualStepsToBackend);
-                                                            }}>{">"}</Button>
-                                                    </Col>
-                                                    <Col>
-                                                        <Button color="warning" className='calibratebutton mt-1 text-center w-100' onClick={() => {
-                                                                this.setState({ 
-                                                                    mode: 5,
-                                                                    pull: false,
-                                                                    steps: 10000,
-                                                                }, this.sendManualStepsToBackend);
-                                                            }}>{">>"}</Button>
+                                                            }}>{">>>"}</Button>
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -326,7 +390,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row className="mb-1">
                                                     <Col>
-                                                        <Integernumpad value={ml} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
+                                                        <Integernumpad value={ml.toFixed(4)} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -345,7 +409,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={time_rate} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={2} />
+                                                        <Integernumpad value={time_rate.toFixed(3)} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={3} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -362,7 +426,7 @@ class App extends React.Component {
                                                         <Label className="mt-1">Ml / 10000 steps</Label>
                                                     </Col>
                                                     <Col xs="6" className="text-right">
-                                                        <Button color="primary" className='calibratebutton mt-1 text-center' onClick={() => {
+                                                        <Button disabled={running} color="primary" className='calibratebutton mt-1 text-center' onClick={() => {
                                                             this.setState({ 
                                                                 mode: 4,
                                                                 pull: false,
@@ -373,7 +437,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={10000.0 / steps_per_ml} fn={(value) => { this.setState({steps_per_ml: parseInt(10000 / parseFloat(value))}); }} decimal={0} />
+                                                        <Integernumpad value={(10000.0 / steps_per_ml).toFixed(3)} fn={(value) => { this.setState({steps_per_ml: parseInt(10000 / parseFloat(value))}); }} decimal={3} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -382,10 +446,16 @@ class App extends React.Component {
                                                     <Col>
                                                         <Label className="mt-1">Syringe size</Label>
                                                     </Col>
+                                                    <Col>
+                                                        <Label className="mt-1">Currently in syringe</Label>
+                                                    </Col>
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={syringe_size} fn={(value) => { this.setState({syringe_size: parseFloat(value)}); }} decimal={2} />
+                                                        <Integernumpad value={syringe_size.toFixed(3)} fn={(value) => { this.setState({syringe_size: parseFloat(value)}); }} decimal={3} />
+                                                    </Col>
+                                                    <Col>
+                                                        <Integernumpad value={ml_in_pump.toFixed(3)} fn={(value) => { this.setState({ml_in_pump: parseFloat(value)}); }} decimal={3} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -394,7 +464,7 @@ class App extends React.Component {
                                 }
                                 {mode === 5 &&
                                     <Form>
-                                        <div className='form  text-left'>
+                                        <div className='form text-left'>
                                             <div>
                                                 <Row className="mb-1">
                                                     <Col>
@@ -417,14 +487,14 @@ class App extends React.Component {
                         <div className='footer ml-1 mb-1'>
                             <Row>
                                 <Col xs="3" className='text-left'>
-                                    {running &&
+                                    {running  && mode !==4 &&
                                         <div className='footerbtn'>
-                                            <Button className='mt-3' color="warning" onClick={this.setState({screen_lock: 3})}>LOCK</Button>
+                                            <Button className='pr-1 footerbtn' color="warning" onClick={() => {this.setState({screen_lock: 3});}}><span className='innerfooterbutton'>LOCK</span></Button>
                                         </div>
                                     }
-                                    {!running &&
-                                        <Button className='backbutton footerbtn' disabled={mode === 0 || running} color="danger" onClick={() => {this.setState({ mode: 0} );}}>
-                                            <svg className='innerfooterbackbutton' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 350">
+                                    {(!running || mode === 4) &&
+                                        <Button className='m-0 pr-1 footerbtn' disabled={mode === 0 || running} color="danger" onClick={() => {this.setState({ mode: 0} );}}>
+                                            <svg className='innerfooterbutton' xmlns="http://www.w3.org/2000/svg" viewBox="0 90 500 350">
                                                 <path d="M344.6,222.1H159.2l47.4-47.5c5.3-5.3,5.3-13.8,0-19.1s-13.8-5.3-19.1,0L117,226c-5.3,5.3-5.3,13.8,0,19.1l70.6,70.5
                                                     c2.6,2.6,6.1,4,9.5,4s6.9-1.3,9.5-4c5.3-5.3,5.3-13.8,0-19.1L159.1,249h185.5c7.5,0,13.5-6,13.5-13.5S352.1,222.1,344.6,222.1z"/>
                                             </svg>
@@ -432,15 +502,11 @@ class App extends React.Component {
                                     }
                                 </Col>
                                 <Col className='text-center'>
-                                    {running && !pause && 
-                                        <div className='footerbtn'>
-                                            <Button className='mt-3' color="warning" onClick={this.pauseBackend}>PAUSE</Button>
-                                        </div>
+                                    {running && !pause && mode !==4 && 
+                                        <Button className='mr-2 pr-1 footerbtn' color="warning" onClick={this.pauseBackend}><span className='innerfooterbutton'>PAUSE</span></Button>
                                     }
-                                    {running && pause && 
-                                        <div className='footerbtn'>
-                                            <Button className='mt-3' color="warning" onClick={this.pauseBackend}>RESUME</Button>
-                                        </div>
+                                    {running && pause && mode !==4 && 
+                                        <Button className='mr-2 pr-1 footerbtn' color="warning" onClick={this.pauseBackend}><span className='innerfooterbutton'>RESUME</span></Button>
                                     }
                                     {!running && [1,2,3].includes(mode) &&
                                         <div className='footerswitch'>
@@ -449,18 +515,18 @@ class App extends React.Component {
                                     }
                                 </Col>
                                 <Col className="text-center" xs="3">
-                                    {running && 
+                                    {running && mode !== 4 && 
                                         <div className='footerbtn'>
-                                            <Button className='mt-3' color="danger" onClick={this.stopBackend}>STOP</Button>
+                                            <Button className='mr-2 pr-1 footerbtn' color="danger" onClick={this.stopBackend}><span className='innerfooterbutton'>STOP</span></Button>
                                         </div>
                                     }
                                     {!running &&
                                         <div>
                                             {[1,2,3].includes(mode) &&
-                                                <Button className='mr-1 footerbtn' color="success" onClick={this.sendDataToBackend}><span className='innerfooterbutton'>START</span></Button>
+                                                <Button className='mr-2 pr-1 footerbtn' color="success" onClick={this.sendDataToBackend}><span className='innerfooterbutton'>START</span></Button>
                                             }
                                             {mode === 4 &&
-                                                <Button className='mr-2 footerbtn' color="success" onClick={this.sendConfigToBackend}><span className='innerfooterbutton'>SAVE</span></Button>
+                                                <Button className='mr-2 pr-1 footerbtn' color="success" onClick={this.sendConfigToBackend}><span className='innerfooterbutton'>SAVE</span></Button>
                                             }
                                         </div>
                                     }
