@@ -12,8 +12,8 @@ let API_URL = 'HTTP://10.0.28.171:5000'; // 'HTTP://10.0.28.171:5000' 'HTTP://12
 
 class App extends React.Component {
     state = {
-        running: true,
-        mode: 1, // 1 default, 2 asap
+        running: false,
+        mode: 0, // 1 default, 2 asap
         ml: 0,
         ml_in_pump: 0,
         total_ml: 0,
@@ -70,7 +70,7 @@ class App extends React.Component {
         let link = window.location.href.split(':');
         API_URL = `${link[0]}:${link[1]}:5000`;
         console.log(API_URL)
-        //this.fetchData();
+        this.fetchData();
     };
 
     checkForUpdates = async () => {
@@ -188,7 +188,7 @@ class App extends React.Component {
 
         return (
             <div className="App">
-                {/*<ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />*/}
+                <ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />
                 <div className='main m-1 p-1'>
                     <div className="header mb-1">
                         <div className='maxheightlimit'>
@@ -205,7 +205,7 @@ class App extends React.Component {
                         </div>
                     </div>
                     <div className='content text-left'>
-                        {running && mode !== 4 &&
+                        {running && mode !== 4 && mode !== 5 &&
                             <div>
                                 {screen_lock > 0 &&
                                     <div className='mymodal'>
@@ -262,7 +262,7 @@ class App extends React.Component {
                                 </div>
                             </div>
                         }
-                        {(!running || mode === 4) &&
+                        {(!running || mode === 4 || mode === 5) &&
                             <div className='maincontent'>
                                 {mode === 0 &&
                                     <div className='menubuttons'>
@@ -270,7 +270,7 @@ class App extends React.Component {
                                         <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 2} );}}>ASAP mode</Button></div>
                                         <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 3} );}}>Rate mode</Button></div>
                                         <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 4} );}}>Settings</Button></div>
-                                        <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 5} );}}>Remote control</Button></div>
+                                        <div className='menubutton mt-1'><Button className='w-100 text-left' onClick={() => {this.setState({ mode: 10} );}}>Remote control</Button></div>
                                     </div>
                                 }
                                 {mode === 1 &&
@@ -317,7 +317,7 @@ class App extends React.Component {
                                     </Form>
                                 }
 
-                                {mode === 2 &&
+                                {(mode === 2 || mode === 5) &&
                                     <Form>
                                         <div className='form text-left'>
                                             <div>
@@ -339,9 +339,9 @@ class App extends React.Component {
                                                     </Col>
                                                 </Row>
 
-                                                <Row className="mt-3">
+                                                <Row className="mt-0">
                                                     <Col>
-                                                        <Label className="mt-1">Move manually</Label>
+                                                        <Label className="mt-3">Move manually</Label>
                                                     </Col>
                                                 </Row>
                                                 <Row className='ml-0 mr-0 pl-0 pr-0'>
@@ -495,7 +495,7 @@ class App extends React.Component {
                                         </div>
                                     </Form>
                                 }
-                                {mode === 5 &&
+                                {mode === 10 &&
                                     <Form>
                                         <div className='text-center'>
                                             <div>
@@ -511,12 +511,12 @@ class App extends React.Component {
                         <div className='footer ml-1 mb-1'>
                             <Row>
                                 <Col xs="3" className='text-left'>
-                                    {running  && mode !==4 &&
+                                    {running  && mode !== 4 && mode !== 5 &&
                                         <div className='footerbtn'>
                                             <Button className='pr-1 footerbtn' color="warning" onClick={() => {this.setState({screen_lock: 3});}}><span className='innerfooterbutton'>LOCK</span></Button>
                                         </div>
                                     }
-                                    {(!running || mode === 4) &&
+                                    {(!running || mode === 4  || mode === 5) &&
                                         <Button className='m-0 pr-1 footerbtn' disabled={mode === 0 || running} color="danger" onClick={() => {this.setState({ mode: 0} );}}>
                                             <svg className='innerfooterbutton' xmlns="http://www.w3.org/2000/svg" viewBox="0 90 500 350">
                                                 <path d="M344.6,222.1H159.2l47.4-47.5c5.3-5.3,5.3-13.8,0-19.1s-13.8-5.3-19.1,0L117,226c-5.3,5.3-5.3,13.8,0,19.1l70.6,70.5
@@ -525,19 +525,19 @@ class App extends React.Component {
                                         </Button>
                                     }
                                 </Col>
-                                <Col xs="3" className='text-center'>
-                                    {running && !pause && [1,3].includes(mode) && 
-                                        <Button disabled={active_bolus_cooldown} className='mr-2 pr-1 footerbtn' color="success" onClick={this.sendBolus}><span className='innerfooterbutton'>{active_bolus_cooldown ? active_bolus_cooldown.toFixed(0) : "BOLUS"}</span></Button>
-                                    }
-                                </Col>
-                                <Col xs="3" className='text-center'>
-                                    {running && !pause && mode !==4 && 
+                                {running && !pause && [1,3].includes(mode) && 
+                                    <Col xs="3" className='text-center'>
+                                            <Button disabled={active_bolus_cooldown} className='mr-2 pr-1 footerbtn' color="success" onClick={this.sendBolus}><span className='innerfooterbutton'>{active_bolus_cooldown ? active_bolus_cooldown.toFixed(0) : "BOLUS"}</span></Button>
+                                    </Col>
+                                }
+                                <Col className='text-center'>
+                                    {running && !pause && mode !== 4  && mode !== 5 && 
                                         <Button className='mr-2 pr-1 footerbtn' color="warning" onClick={this.pauseBackend}><span className='innerfooterbutton'>PAUSE</span></Button>
                                     }
-                                    {running && pause && mode !==4 && 
+                                    {running && pause && mode !== 4 && mode !== 5 && 
                                         <Button className='mr-2 pr-1 footerbtn' color="warning" onClick={this.pauseBackend}><span className='innerfooterbutton'>RESUME</span></Button>
                                     }
-                                    {!running && [1,2,3].includes(mode) &&
+                                    {((!running && [1,2,3].includes(mode)) || mode === 5) &&
                                         <div className='footerswitch'>
                                             <Toggle className='footerswitch' value={pull} fn={ () => { this.setState({ pull: !pull }); } } />
                                         </div>
@@ -551,7 +551,7 @@ class App extends React.Component {
                                     }
                                     {!running &&
                                         <div>
-                                            {[1,2,3].includes(mode) &&
+                                            {[1,2,3,5].includes(mode) &&
                                                 <Button className='mr-2 pr-1 footerbtn' color="success" onClick={this.sendDataToBackend}><span className='innerfooterbutton'>START</span></Button>
                                             }
                                             {mode === 4 &&
