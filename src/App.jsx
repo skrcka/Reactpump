@@ -8,7 +8,7 @@ import QRCode from "react-qr-code";
 import Toggle from './Toggle'
 import Integernumpad from './Integernumpad'
 
-let API_URL = 'HTTP://10.0.28.171:5000'; // 'HTTP://10.0.28.171:5000' 'HTTP://127.0.0.1:5000';
+let API_URL = 'HTTP://192.168.0.193:5000'; // 'HTTP://10.0.28.171:5000' 'HTTP://127.0.0.1:5000';
 
 class App extends React.Component {
     state = {
@@ -52,6 +52,7 @@ class App extends React.Component {
                 mode: result.data.mode,
                 ml: result.data.ml,
                 ml_in_pump: result.data.ml_in_pump,
+                total_ml: result.data.total_ml,
                 time_rate: result.data.time_rate,
                 progress: result.data.progress,
                 steps_per_ml: result.data.steps_per_ml,
@@ -111,7 +112,6 @@ class App extends React.Component {
     }
 
     sendDataToBackend = async () => {
-        this.setState({total_ml: this.ml});
         await axios.post(`${API_URL}/update_status`,
             [
                 this.state.mode,
@@ -194,11 +194,11 @@ class App extends React.Component {
                         <div className='maxheightlimit'>
                             <div className='text-left statusbar maxheightlimit'>
                                 <Col>
-                                    <p className={running ? 'textDanger' : 'textSuccess'}>{ml_in_pump.toFixed(3)} ml {running ? (pull ? '↓' : '↑') : ''}</p>
+                                    <p className={running ? 'textDanger' : 'textSuccess'}>{ml_in_pump.toFixed(3)} ml {running ? (pull ? '↑' : '↓') : ''}</p>
                                 </Col>
                                 <Col className='text-right'>
                                     {ip &&
-                                        <p>IP: {ip}</p>
+                                        <p>{ip}</p>
                                     }
                                 </Col>
                             </div>
@@ -236,26 +236,23 @@ class App extends React.Component {
                                         </Row>
                                         <Row>
                                             <Col>
-                                                <Progress name='progress' animated color="primary" value={progress} />
-                                            </Col>
-                                            <Col sm="3" className='text-right'>
-                                                <Input disabled className='smallinput progressinput' name='progress' animated value={`${progress}%`} />
+                                                <Progress name='progress' animated color="primary" value={progress}>{progress} %</Progress>
                                             </Col>
                                         </Row>
                                         <Row className="mb-1">
                                             <Col>
-                                                <Label className="mt-1">Total amount</Label>
+                                                <Label className="mt-1">Left to push</Label>
                                             </Col>
                                             <Col>
-                                                <Label className="mt-1">Left to push</Label>
+                                                <Label className="mt-1">Total amount</Label>
                                             </Col>
                                         </Row>
                                         <Row>
                                             <Col>
-                                                <Input disabled value={total_ml.toFixed(2)} />
+                                                <Input disabled value={ml.toFixed(2)} />
                                             </Col>
                                             <Col>
-                                                <Input disabled value={ml.toFixed(2)} />
+                                                <Input disabled value={total_ml.toFixed(2)} />
                                             </Col>
                                         </Row>
                                     </div>
@@ -291,7 +288,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={ml.toFixed(4)} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
+                                                        <Integernumpad value={ml ? ml.toFixed(4) : ""} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -309,7 +306,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={time_rate.toFixed(2)} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={2} />
+                                                        <Integernumpad value={time_rate ? time_rate.toFixed(2) : ""} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={2} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -335,7 +332,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={ml.toFixed(4)} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
+                                                        <Integernumpad value={ml ? ml.toFixed(4) : ""} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
                                                     </Col>
                                                 </Row>
 
@@ -423,7 +420,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row className="mb-1">
                                                     <Col>
-                                                        <Integernumpad value={ml.toFixed(4)} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
+                                                        <Integernumpad value={ml ? ml.toFixed(4) : ""} fn={(value) => { this.setState({ml: parseFloat(value)}); }} decimal={4} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -442,7 +439,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={time_rate.toFixed(3)} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={3} />
+                                                        <Integernumpad value={time_rate ? time_rate.toFixed(3) : ""} fn={(value) => { this.setState({time_rate: parseFloat(value)}); }} decimal={3} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -470,7 +467,7 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={(10000.0 / steps_per_ml).toFixed(3)} fn={(value) => { this.setState({steps_per_ml: parseInt(10000 / parseFloat(value))}); }} decimal={3} />
+                                                        <Integernumpad value={(10000.0 / steps_per_ml).toFixed(3)} fn={(value) => { this.setState({steps_per_ml: Math.round(10000.0 / parseFloat(value))}); }} decimal={3} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -485,10 +482,10 @@ class App extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        <Integernumpad value={syringe_size.toFixed(3)} fn={(value) => { this.setState({syringe_size: parseFloat(value)}); }} decimal={3} />
+                                                        <Integernumpad value={syringe_size ? syringe_size.toFixed(3) : ""} fn={(value) => { this.setState({syringe_size: parseFloat(value)}); }} decimal={3} />
                                                     </Col>
                                                     <Col>
-                                                        <Integernumpad value={ml_in_pump.toFixed(3)} fn={(value) => { this.setState({ml_in_pump: parseFloat(value)}); }} decimal={3} />
+                                                        <Integernumpad value={ml_in_pump ? ml_in_pump.toFixed(3) : ""} fn={(value) => { this.setState({ml_in_pump: parseFloat(value)}); }} decimal={3} />
                                                     </Col>
                                                 </Row>
                                             </div>
@@ -525,17 +522,17 @@ class App extends React.Component {
                                         </Button>
                                     }
                                 </Col>
-                                {running && !pause && [1,3].includes(mode) && 
+                                {running && [1,3].includes(mode) && 
                                     <Col xs="3" className='text-center'>
-                                            <Button disabled={active_bolus_cooldown} className='mr-2 pr-1 footerbtn' color="success" onClick={this.sendBolus}><span className='innerfooterbutton'>{active_bolus_cooldown ? active_bolus_cooldown.toFixed(0) : "BOLUS"}</span></Button>
+                                            <Button disabled={active_bolus_cooldown > 0 || pause} className='mr-2 pr-1 footerbtn' color="success" onClick={this.sendBolus}><span className='innerfooterbutton'>{active_bolus_cooldown ? active_bolus_cooldown.toFixed(0) : "BOLUS"}</span></Button>
                                     </Col>
                                 }
-                                <Col className='text-center'>
+                                <Col xs={ (running && [1,3].includes(mode)) ? "3" : "" } className='text-center'>
                                     {running && !pause && mode !== 4  && mode !== 5 && 
                                         <Button className='mr-2 pr-1 footerbtn' color="warning" onClick={this.pauseBackend}><span className='innerfooterbutton'>PAUSE</span></Button>
                                     }
                                     {running && pause && mode !== 4 && mode !== 5 && 
-                                        <Button className='mr-2 pr-1 footerbtn' color="warning" onClick={this.pauseBackend}><span className='innerfooterbutton'>RESUME</span></Button>
+                                        <Button className='mr-2 pr-1 footerbtn' color="warning" onClick={this.pauseBackend}><span className='innerfooterbutton resumetext'>RESUME</span></Button>
                                     }
                                     {((!running && [1,2,3].includes(mode)) || mode === 5) &&
                                         <div className='footerswitch'>
@@ -544,12 +541,12 @@ class App extends React.Component {
                                     }
                                 </Col>
                                 <Col className="text-center" xs="3">
-                                    {running && mode !== 4 && 
+                                    {running && mode !== 4 && mode !== 5 && 
                                         <div className='footerbtn'>
                                             <Button className='mr-2 pr-1 footerbtn' color="danger" onClick={this.stopBackend}><span className='innerfooterbutton'>STOP</span></Button>
                                         </div>
                                     }
-                                    {!running &&
+                                    {(!running || mode === 5) &&
                                         <div>
                                             {[1,2,3,5].includes(mode) &&
                                                 <Button className='mr-2 pr-1 footerbtn' color="success" onClick={this.sendDataToBackend}><span className='innerfooterbutton'>START</span></Button>
