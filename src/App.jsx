@@ -8,7 +8,7 @@ import QRCode from "react-qr-code";
 import Toggle from './Toggle'
 import Integernumpad from './Integernumpad'
 
-let API_URL = 'HTTP://192.168.0.193:5000'; // 'HTTP://10.0.28.171:5000' 'HTTP://127.0.0.1:5000';
+let API_URL = 'HTTP://10.0.28.171:5000'; // 'HTTP://10.0.28.171:5000' 'HTTP://127.0.0.1:5000'; HTTP://192.168.0.193:5000
 
 class App extends React.Component {
     state = {
@@ -276,7 +276,7 @@ class App extends React.Component {
                                             <div>
                                                 <Row className="mb-1">
                                                     <Col>
-                                                        <Label className="mt-1">How much?</Label>
+                                                        <Label className="mt-1">Volume</Label>
                                                     </Col>
                                                     <Col xs="4">
                                                         <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
@@ -295,7 +295,7 @@ class App extends React.Component {
                                             <div>
                                                 <Row className='mb-1 mt-1'>
                                                     <Col>
-                                                        <Label>In how long?</Label>
+                                                        <Label>Time</Label>
                                                     </Col>
                                                     <Col xs="4">
                                                         <Input type="select" onChange={ (event) => { this.setState({ time_rate_unit: parseInt(event.target.value) }); } }>
@@ -320,7 +320,7 @@ class App extends React.Component {
                                             <div>
                                                 <Row className="mb-1">
                                                     <Col>
-                                                        <Label className="mt-1">How much?</Label>
+                                                        <Label className="mt-1">Volume</Label>
                                                     </Col>
                                                     <Col xs="4">
                                                         <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
@@ -338,7 +338,7 @@ class App extends React.Component {
 
                                                 <Row className="mt-0">
                                                     <Col>
-                                                        <Label className="mt-3">Move manually</Label>
+                                                        <Label className="mt-3">Manual move</Label>
                                                     </Col>
                                                 </Row>
                                                 <Row className='ml-0 mr-0 pl-0 pr-0'>
@@ -408,7 +408,7 @@ class App extends React.Component {
                                             <div>
                                                 <Row className="mb-1">
                                                     <Col>
-                                                        <Label className="mt-1">How much?</Label>
+                                                        <Label className="mt-1">Volume</Label>
                                                     </Col>
                                                     <Col xs="4">
                                                         <Input type="select" onChange={ (event) => { this.setState({ volume_unit: parseInt(event.target.value) }); } }>
@@ -427,7 +427,7 @@ class App extends React.Component {
                                             <div>
                                                 <Row className="mb-1">
                                                     <Col>
-                                                        <Label className="mt-1">At what rate?</Label>
+                                                        <Label className="mt-1">Speed</Label>
                                                     </Col>
                                                     <Col xs="4">
                                                         <Input type="select" onChange={ (event) => { this.setState({ time_rate_unit: parseInt(event.target.value) }); } }>
@@ -477,7 +477,7 @@ class App extends React.Component {
                                                         <Label className="mt-1">Syringe size</Label>
                                                     </Col>
                                                     <Col>
-                                                        <Label className="mt-1">Currently in syringe</Label>
+                                                        <Label className="mt-1">Current volume</Label>
                                                     </Col>
                                                 </Row>
                                                 <Row>
