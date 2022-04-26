@@ -76,9 +76,13 @@ class App extends React.Component {
 
     checkForUpdates = async () => {
         const result = await axios.get(`${API_URL}/status`);
+        if(result.data.ip !== this.state.ip)
+            await this.setState({
+                ip: result.data.ip,
+            });
         if(result.data.running){
             if(!this.state.running)
-                this.setState({
+                await this.setState({
                     running: result.data.running,
                 });
             this.setState({
@@ -188,7 +192,7 @@ class App extends React.Component {
 
         return (
             <div className="App">
-                <ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />
+                {/*<ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />*/}
                 <div className='main m-1 p-1'>
                     <div className="header mb-1">
                         <div className='maxheightlimit'>
@@ -495,10 +499,12 @@ class App extends React.Component {
                                 {mode === 10 &&
                                     <Form>
                                         <div className='text-center'>
-                                            <div>
-                                                <QRCode size="170" value={`http://${ip}:3000`} />
+                                            {ip &&
+                                                <div>
+                                                    <QRCode size="170" value={`http://${ip}:3000`} />
+                                                </div>
+                                            }
                                             </div>
-                                        </div>
                                     </Form>
                                 }
                             </div>
