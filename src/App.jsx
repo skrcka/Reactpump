@@ -8,7 +8,7 @@ import QRCode from "react-qr-code";
 import Toggle from './Toggle'
 import Integernumpad from './Integernumpad'
 
-let API_URL = 'HTTP://10.0.28.171:5000'; // 'HTTP://10.0.28.171:5000' 'HTTP://127.0.0.1:5000'; HTTP://192.168.0.193:5000
+let API_URL = 'HTTP://192.168.137.180:5000'; // 'HTTP://10.0.28.171:5000' 'HTTP://127.0.0.1:5000'; HTTP://192.168.0.193:5000
 
 class App extends React.Component {
     state = {
@@ -192,13 +192,13 @@ class App extends React.Component {
 
         return (
             <div className="App">
-                {/*<ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />*/}
+                <ReactInterval timeout={100} enabled={true} callback={this.checkForUpdates} />
                 <div className='main m-1 p-1'>
                     <div className="header mb-1">
                         <div className='maxheightlimit'>
                             <div className='text-left statusbar maxheightlimit'>
                                 <Col>
-                                    <p className={running ? 'textDanger' : 'textSuccess'}>{ml_in_pump.toFixed(3)} ml {running ? (pull ? '↑' : '↓') : ''}</p>
+                                    <p className={running ? 'textDanger' : 'textSuccess'}>{ml_in_pump.toFixed(2)} ml {running ? (pull ? '↑' : '↓') : ''}</p>
                                 </Col>
                                 <Col className='text-right'>
                                     {ip &&
@@ -511,7 +511,7 @@ class App extends React.Component {
                         }
                     </div>
                     {mode !== 0 &&
-                        <div className='footer ml-1 mb-1'>
+                        <div className='footer ml-1 mb-1 pr-2'>
                             <Row>
                                 <Col xs="3" className='text-left'>
                                     {running  && mode !== 4 && mode !== 5 &&
